@@ -1,0 +1,21 @@
+{
+  "name": "xingsheng",
+  "version": "1.0.0",
+  "description": "兴盛优选",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "supervisor index.js"
+  },
+  "author": "xujian",
+  "license": "ISC",
+  "dependencies": {
+    "koa": "^2.13.0",
+    "koa-bodyparser": "^4.3.0",
+    "koa-router": "^9.1.0",
+    "querystring": "^0.2.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5",
+    "supervisor": "^0.12.0"
+  }
+}
