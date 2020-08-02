@@ -182,6 +182,34 @@ module.exports = {
     })
     ctx.response.body = JSON.stringify(userInfo)
   },
+  getCode: async (ctx, next) => {
+    const { phone } = ctx.query
+    const res = await request({
+      demain: 'user.xsyxsc.com',
+      url: 'api/auth/auth/sendVerificationCode',
+      type: 'form',
+      method: 'POST',
+      data: { mobileNo: phone, scenes: 'LOGIN' }
+    })
+    ctx.response.body = JSON.stringify(res)
+  },
+  phoneLogin: async (ctx, next) => {
+    const { phone, code, msgId } = ctx.query
+    const res = await request({
+      demain: 'user.xsyxsc.com',
+      url: 'api/auth/auth/manualLogin',
+      type: 'form',
+      method: 'POST',
+      data: {
+        loginMode: 'VERIFICATION_CODE',
+        userName: phone,
+        verificationCode: code,
+        msgId,
+        userKey: '4f1650f8-d0d1-4153-ae59-ee1fba961ad0'
+      }
+    })
+    ctx.response.body = JSON.stringify(res)
+  },
   submit: async (ctx, next) => {
     const { body } = ctx.request
     // 延迟请求 会提示太快开始

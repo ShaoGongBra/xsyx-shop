@@ -521,19 +521,63 @@
       z-index: 999;
     }
 
+    .login .nav {
+      flex-direction: row;
+      align-items: center;
+      width: 290px;
+      background-color: #2f2f2f;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .login .nav span {
+      flex: 1;
+      padding: 8px 5px;
+      font-size: 16px;
+      color: #fff;
+      text-align: center;
+    }
+
+    .login .nav span.hover {
+      background-color: #999;
+    }
+
+    .login .tab {
+      margin-top: 30px;
+      height: 100px;
+      align-items: center;
+    }
+
     .login input {
       width: 270px;
       font-size: 14px;
       background-color: #555;
       border: none;
-      padding: 5px 10px;
+      padding: 8px 10px;
       color: #e2e2e2;
+      margin: 5px 0;
+      border-radius: 5px;
     }
 
-    .login .info {
-      margin-top: 20px;
+    .login .code {
+      flex-direction: row;
+      width: 290px;
+      background-color: #555;
+      align-items: center;
+      border-radius: 5px;
+      margin: 5px 0;
+    }
+
+    .login .code input {
+      width: auto;
+      flex: 1;
+      margin: 0;
+    }
+
+    .login .code .get {
       font-size: 12px;
-      color: #999;
+      color: #fff;
+      padding: 0 10px;
     }
 
     .toast {
@@ -608,30 +652,6 @@
         </div>
       </div>
       <goods-detail v-if="selectMall.prId" :mall="selectMall" @close="selectMall = {}"></goods-detail>
-      <!-- <div v-if="mall.prId" class="mall-detail">
-        <div class="close" @click="mall = {}">关闭</div>
-        <div class="scroll">
-          <swiper :options="swiperOption">
-            <swiper-slide v-for="item in mall.primaryUrls" :key="item">
-              <img :src="item" alt="">
-            </swiper-slide>
-            <div class="swiper-pagination" slot="pagination"></div>
-          </swiper>
-          <div class="title">{{mall.prName}}</div>
-          <div class="price">
-            <span>￥{{mall.saleAmt}}</span>
-            <span class="old">￥{{mall.marketAmt}}</span>
-          </div>
-          <div class="line"></div>
-          <div class="option">购买数量：{{mall.daySaleQty}}/{{mall.limitQty === 0?'不限购':mall.limitQty}}</div>
-          <div class="option">限购数量：{{mall.ulimitQty>0?mall.ulimitQty:'不限购'}}</div>
-          <div class="option">购买时间：{{mall.tmBuyStart.substr(5, 11)}} - {{mall.tmBuyEnd.substr(5, 11)}}</div>
-          <div class="line"></div>
-          <div class="detail">
-            <img v-for="item in mall.detailUrls" :src="item" :key="item" alt="">
-          </div>
-        </div>
-      </div> -->
       <div v-if="!selectMall.prId" class="cart">
         <div v-for="time in cart">
           <div class="head">
@@ -675,10 +695,7 @@
         </div>
       </div>
     </div>
-    <div v-if="showLogin" class="login">
-      <input type="text" placeholder="请输入key" @input="loginInput">
-      <span class="info">兴盛优选在不同区域售卖的产品不相同 你需要先等后才能访问这些商品</span>
-    </div>
+    <login v-if="showLogin" @input="loginInput"></login>
   </div>
   <div class="toast"></div>
 </body>
@@ -929,6 +946,77 @@
             }
           }
         }
+      },
+      login: {
+        data() {
+          return {
+            select: 0,
+            post: {
+              phone: '',
+              code: '',
+              msgId: ''
+            },
+            codeStaus: 0, // 0 未获取 1已获取 2获取中
+          }
+        },
+        props: {
+          mall: {
+            type: [Object],
+            default: {}
+          }
+        },
+        template: `
+        <div class="login">
+          <div class="nav">
+            <span :class="{hover: select === 0}" @click="select = 0">手机号登陆</span>
+            <span :class="{hover: select === 1}" @click="select = 1">秘钥登陆</span>
+          </div>
+          <div v-if="select === 0" class="tab">
+            <div class="code">
+              <input type="text" placeholder="手机号" maxLength="11" @input="input('phone', $event.target.value)">
+            </div>
+            
+            <div v-if="post.phone.length === 11 && codeStaus === 1" class="code">
+              <input type="text" placeholder="验证码" maxLength="4" @input="input('code', $event.target.value)">
+            </div>
+          </div>
+          <div v-if="select === 1" class="tab">
+            <input type="text" placeholder="请输入key" @input="input('key', $event.target.value)">
+          </div>
+        </div>
+        `,
+        methods: {
+          input(key, value) {
+            this.post[key] = value
+            if (key === 'key') {
+              this.$emit('input', value)
+            } else if(key === 'phone' && value.length === 11) {
+              this.post.phone = value
+              this.getCode()
+            }else if(key === 'code' && value.length === 4){
+              this.post.code = value
+              this.login()
+            }else if(key === 'phone'){
+              this.codeStaus = 0
+            }
+          },
+          async getCode() {
+            this.codeStaus = 2
+            const res = await request({
+              url: 'index/getCode',
+              data: this.post
+            })
+            this.codeStaus = 1
+            this.post.msgId = res.msgId
+          },
+          async login() {
+            const res = await request({
+              url: 'index/phoneLogin',
+              data: this.post
+            })
+            this.$emit('input', res.userKey)
+          }
+        }
       }
     },
     data: {
@@ -980,9 +1068,9 @@
         localStorage.removeItem("userInfo")
         this.init()
       },
-      async loginInput(e) {
-        if (e.target.value.length === 36) {
-          const userInfo = await this.getUserInfo(e.target.value)
+      async loginInput(value) {
+        if (value.length === 36) {
+          const userInfo = await this.getUserInfo(value)
           this.loginOnFunc[0] && this.loginOnFunc[0](userInfo)
           this.showLogin = false
         }
