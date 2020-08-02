@@ -370,12 +370,66 @@
       color: #fff;
     }
 
+    .mall-detail .nav {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-around;
+    }
+
+    .mall-detail .nav .item {
+      padding: 8px 6px;
+      color: #fff;
+      border-bottom: 2px solid transparent;
+    }
+
+    .mall-detail .nav .item.hover {
+      font-weight: bold;
+      border-bottom: 2px solid #fff;
+    }
+
     .mall-detail .detail {
       background-color: #999;
     }
 
     .mall-detail .detail img {
       width: 380px;
+    }
+
+    .mall-detail .log {}
+
+    .mall-detail .log .item {
+      flex-direction: row;
+      align-items: center;
+      padding: 6px 10px;
+    }
+
+    .mall-detail .log .item img {
+      width: 50px;
+      height: 50px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .mall-detail .log .item .info {
+      height: 46px;
+      justify-content: space-between;
+      flex: 1;
+    }
+
+    .mall-detail .log .item .name {
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .mall-detail .log .item .time {
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .mall-detail .log .item .num {
+      color: #e60012;
+      font-size: 14px;
     }
 
     .footer {
@@ -553,7 +607,8 @@
           </div>
         </div>
       </div>
-      <div v-if="mall.prId" class="mall-detail">
+      <goods-detail v-if="selectMall.prId" :mall="selectMall" @close="selectMall = {}"></goods-detail>
+      <!-- <div v-if="mall.prId" class="mall-detail">
         <div class="close" @click="mall = {}">关闭</div>
         <div class="scroll">
           <swiper :options="swiperOption">
@@ -576,8 +631,8 @@
             <img v-for="item in mall.detailUrls" :src="item" :key="item" alt="">
           </div>
         </div>
-      </div>
-      <div v-if="!mall.prId" class="cart">
+      </div> -->
+      <div v-if="!selectMall.prId" class="cart">
         <div v-for="time in cart">
           <div class="head">
             <span class="time">{{time.time.substr(5, 11)}}</span>
@@ -775,18 +830,114 @@
   Vue.use(VueAwesomeSwiper)
   var app = new Vue({
     el: '#app',
+    components: {
+      'goods-detail': {
+        data() {
+          return {
+            info: {},
+            log: [],
+            nav: ['商品详情', '购买记录'],
+            navIndex: 0,
+            swiperOption: {
+              loop: true,
+              pagination: {
+                el: '.swiper-pagination'
+              }
+            },
+          }
+        },
+        props: {
+          mall: {
+            type: [Object],
+            default: {}
+          }
+        },
+        template: `
+          <div v-if="info.prId" class="mall-detail">
+            <div class="close" @click="$emit('close')">关闭</div>
+            <div class="scroll">
+              <swiper :options="swiperOption">
+                <swiper-slide v-for="item in info.primaryUrls" :key="item">
+                  <img :src="item" alt="">
+                </swiper-slide>
+                <div class="swiper-pagination" slot="pagination"></div>
+              </swiper>
+              <div class="title">{{info.prName}}</div>
+              <div class="price">
+                <span>￥{{info.saleAmt}}</span>
+                <span class="old">￥{{info.marketAmt}}</span>
+              </div>
+              <div class="line"></div>
+              <div class="option">购买数量：{{info.daySaleQty}}/{{info.limitQty === 0?'不限购':info.limitQty}}</div>
+              <div class="option">限购数量：{{info.ulimitQty>0?info.ulimitQty:'不限购'}}</div>
+              <div class="option">购买时间：{{info.tmBuyStart.substr(5, 11)}} - {{info.tmBuyEnd.substr(5, 11)}}</div>
+              <div class="line"></div>
+              <div class="nav">
+               <span class="item" v-for="(item, index) in nav" :key="item" :class="{hover: navIndex === index}" @click="switchNav(index)">{{item}}</span> 
+              </div>
+              <div class="detail" v-if="navIndex === 0">
+                <img v-for="item in info.detailUrls" :src="item" :key="item" alt="">
+              </div>
+              <div class="log" v-if="navIndex === 1">
+                <div class="item" v-for="item in log" :key="item.avatar">
+                  <img :src="item.avatar" /> 
+                  <div class="info">
+                    <span class="name">{{item.wxName}}</span>
+                    <span class="time">{{item.tmTrade}}</span>
+                  </div>
+                  <span class="num">{{item.buyQty}}件</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        mounted() {
+          this.getInfo()
+        },
+        watch: {
+          'mall.prId'() {
+            this.getInfo()
+          }
+        },
+        methods: {
+          async getInfo() {
+            this.switchNav(0)
+            this.log = []
+            this.info = {}
+            this.info = await request({
+              url: 'index/mall',
+              data: {
+                spuSn: this.mall.spuSn,
+                skuSn: this.mall.skuSn,
+                productId: this.mall.prId,
+                activityId: this.mall.acId
+              }
+            })
+            this.info.daySaleQty = this.mall.number.daySaleQty
+          },
+          async switchNav(index) {
+            this.navIndex = index
+            if (index === 1 && this.log.length === 0) {
+              this.log = await request({
+                url: 'index/mallLog',
+                data: {
+                  productId: this.mall.prId,
+                  activityId: this.mall.acId,
+                  productType: this.mall.prType
+                }
+              })
+            }
+          }
+        }
+      }
+    },
     data: {
       showLogin: false,
       cates: [],
       selectCate: 0,
       malls: [],
-      mall: {},
-      swiperOption: {
-        loop: true,
-        pagination: {
-          el: '.swiper-pagination'
-        }
-      },
+      selectMall: {},
+      // mall: {},
       cart: [],
       showUserInfo: false,
       userInfo: {},
@@ -880,16 +1031,17 @@
         })
       },
       async showMallDetail(mall) {
-        this.mall = await request({
-          url: 'index/mall',
-          data: {
-            spuSn: mall.spuSn,
-            skuSn: mall.skuSn,
-            productId: mall.prId,
-            activityId: mall.acId
-          }
-        })
-        this.mall.daySaleQty = mall.number.daySaleQty
+        this.selectMall = mall
+        // this.mall = await request({
+        //   url: 'index/mall',
+        //   data: {
+        //     spuSn: mall.spuSn,
+        //     skuSn: mall.skuSn,
+        //     productId: mall.prId,
+        //     activityId: mall.acId
+        //   }
+        // })
+        // this.mall.daySaleQty = mall.number.daySaleQty
       },
       addCart(mall, type = 'add', e) {
         e && (e.stopPropagation(), this.mall = {})

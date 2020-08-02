@@ -153,6 +153,19 @@ module.exports = {
     })
     ctx.response.body = JSON.stringify(mall)
   },
+  mallLog: async (ctx, next) => {
+    const { productType, productId, activityId } = ctx.query
+    const log = await request({
+      url: 'user/product/getUserPurchaseRecord',
+      type: 'form',
+      data: {
+        productType,
+        productId,
+        activityId
+      }
+    })
+    ctx.response.body = JSON.stringify(log)
+  },
   getUserInfo: async (ctx, next) => {
     const userKey = ctx.query.key
     const userInfo = await request({
@@ -172,7 +185,7 @@ module.exports = {
   submit: async (ctx, next) => {
     const { body } = ctx.request
     // 延迟请求 会提示太快开始
-    await asyncTimeOut(50)
+    // await asyncTimeOut(50)
     // 递归次数
     let requestNum = 0
     const submit = async items => {
