@@ -1132,7 +1132,7 @@
         // this.mall.daySaleQty = mall.number.daySaleQty
       },
       addCart(mall, type = 'add', e) {
-        e && (e.stopPropagation(), this.mall = {})
+        e && (e.stopPropagation(), this.selectMall = {})
         if (mall.limitQty === mall.number.daySaleQty && mall.limitQty !== 0) {
           toast('已售完')
           return
