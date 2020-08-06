@@ -637,7 +637,7 @@
       </div>
       <div class="malls">
         <div v-for="item in malls" class="mall-item" @click="showMallDetail(item)">
-          <img :src="item.imgUrl" alt="">
+          <img :src="item.adUrl" alt="">
           <div class="right">
             <span class="title">{{item.prName}}</span>
             <span class="num">{{item.tmBuyStart.substr(5, 11)}} - {{item.tmBuyEnd.substr(5, 11)}}</span>
@@ -659,7 +659,7 @@
             <span class="timer">{{time.timer === null ? '已开始' : time.timeText}}</span>
           </div>
           <div v-for="item in time.list" class="mall-item">
-            <img :src="item.imgUrl" alt="">
+            <img :src="item.adUrl" alt="">
             <div class="right">
               <span class="title">{{item.prName}}</span>
               <span class="num">{{item.tmBuyStart.substr(5, 11)}} - {{item.tmBuyEnd.substr(5, 11)}}</span>
@@ -990,13 +990,13 @@
             this.post[key] = value
             if (key === 'key') {
               this.$emit('input', value)
-            } else if(key === 'phone' && value.length === 11) {
+            } else if (key === 'phone' && value.length === 11) {
               this.post.phone = value
               this.getCode()
-            }else if(key === 'code' && value.length === 4){
+            } else if (key === 'code' && value.length === 4) {
               this.post.code = value
               this.login()
-            }else if(key === 'phone'){
+            } else if (key === 'phone') {
               this.codeStaus = 0
             }
           },
@@ -1025,7 +1025,6 @@
       selectCate: 0,
       malls: [],
       selectMall: {},
-      // mall: {},
       cart: [],
       showUserInfo: false,
       userInfo: {},
@@ -1120,16 +1119,6 @@
       },
       async showMallDetail(mall) {
         this.selectMall = mall
-        // this.mall = await request({
-        //   url: 'index/mall',
-        //   data: {
-        //     spuSn: mall.spuSn,
-        //     skuSn: mall.skuSn,
-        //     productId: mall.prId,
-        //     activityId: mall.acId
-        //   }
-        // })
-        // this.mall.daySaleQty = mall.number.daySaleQty
       },
       addCart(mall, type = 'add', e) {
         e && (e.stopPropagation(), this.selectMall = {})
@@ -1154,7 +1143,7 @@
               item.timer = null
               this.submit()
             })
-            item.timer.start(time, 'H时M分S秒', true)
+            item.timer.start(time - 10, 'H时M分S秒', true)
           }
           this.cart.push(item)
           this.cart.sort((a, b) => a.timeStamp - b.timeStamp)
@@ -1350,6 +1339,6 @@
       }
     }
   }
-</script>
 
+</script>
 </html>

@@ -51,7 +51,28 @@ module.exports = {
         openBrandHouse: 'OPEN'
       }
     })
-    const arr = []
+    const arr = [
+      {
+        windowId: 3,
+        windowName: "10点秒杀"
+      },
+      {
+        windowId: 60,
+        windowName: "0点秒杀"
+      },
+      {
+        windowId: 4,
+        windowName: "10点爆款"
+      },
+      {
+        windowId: 488,
+        windowName: "精选0点"
+      },
+      {
+        windowId: 489,
+        windowName: "精选10点"
+      }
+    ]
     for (const key in res) {
       if (res.hasOwnProperty(key) && typeof res[key] === 'object') {
         arr.push(...res[key])
