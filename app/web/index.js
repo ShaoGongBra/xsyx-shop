@@ -293,5 +293,21 @@ module.exports = {
       ctx.response.body = JSON.stringify(error)
     }
 
+  },
+  orderList: async (ctx, next) => {
+    const { type, page, userKey } = ctx.query
+    const types = ['', 'NEED_PAY', 'PAID', 'FINISHED']
+    const list = await request({
+      demain: 'trade.xsyxsc.com',
+      url: 'tradeorder/order/getOrderUserList',
+      type: 'form',
+      data: {
+        userKey,
+        rows: 30,
+        page,
+        orderStatus: types[type | 0]
+      }
+    })
+    ctx.response.body = JSON.sringify(list.data || [])
   }
 };
