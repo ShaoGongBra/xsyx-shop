@@ -715,7 +715,8 @@
           type,
           headers: {
             areaId: storeInfo.areaId || 0,
-            storeId: storeInfo.storeId || 0
+            storeId: storeInfo.storeId || 0,
+            userKey: userInfo.key
           },
           success: res => {
             resolve(res)
