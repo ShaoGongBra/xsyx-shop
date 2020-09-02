@@ -18,7 +18,6 @@ const ajax = async ({ demain = 'mall.xsyxsc.com', url, method = 'GET', data = {}
     headers: {
       // Referer: 'https://servicewechat.com/wx6025c5470c3cb50c/175/page-frame.html',
       // userkey: header.userkey || '',
-      // 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36 Edg/85.0.564.41',
       Connection: 'keep-alive'
     }
   }
@@ -32,9 +31,8 @@ const ajax = async ({ demain = 'mall.xsyxsc.com', url, method = 'GET', data = {}
     }
   }
   let res = await request(option)
-  console.log(res)
-  res = JSON.parse(res)
   if (res.rspCode === 'success') {
+    // console.log('返回值:' + url, res.data, '結束')
     return res.data
   } else {
     throw { message: res.rspDesc }
