@@ -11,8 +11,8 @@ const ajax = async ({ demain = 'mall.xsyxsc.com', url, method = 'GET', data = {}
     ...data
   }
   const option = {
-    // uri: 'https://' + demain + '/' + url,
-    uri: 'https://auth.platelet.xyz/auth/Api/nodeTest',
+    uri: 'https://' + demain + '/' + url,
+    // uri: 'https://auth.platelet.xyz/auth/Api/nodeTest',
     method,
     json: true,
     headers: {
