@@ -49,8 +49,7 @@ module.exports = {
       url: 'user/product/indexWindows',
       data: {
         openBrandHouse: 'OPEN'
-      },
-      method: 'POST'
+      }
     })
     const arr = [
       {
