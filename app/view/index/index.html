@@ -1036,6 +1036,7 @@
             $.ajax({
               url: '/index/' + url,
               data,
+              dataType: 'json',
               success: res => {
                 resolve(res)
               },
@@ -1052,13 +1053,16 @@
           //   type: 'form',
           //   data: { userKey }
           // })
-          // userInfo.storeInfo = await ajax({
-          //   demain: 'mall-store.xsyxsc.com',
-          //   url: 'mall-store/store/getStoreInfo',
-          //   type: 'form',
-          //   data: { userKey, storeId: userInfo.currentStoreId }
           // })
-          return await this.userAjax('getUserInfo', data)
+          const userInfo = await this.userAjax('getUserInfo', data)
+          userInfo.storeInfo = await ajax({
+            demain: 'mall-store.xsyxsc.com',
+            url: 'mall-store/store/getStoreInfo',
+            type: 'form',
+            data: { userKey: data.key, storeId: userInfo.currentStoreId }
+          })
+          console.log('用户信息', userInfo)
+          return userInfo
         },
         async getCode(data) {
           const { phone } = data

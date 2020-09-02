@@ -195,12 +195,12 @@ module.exports = {
       type: 'form',
       data: { userKey }
     })
-    userInfo.storeInfo = await request({
-      demain: 'mall-store.xsyxsc.com',
-      url: 'mall-store/store/getStoreInfo',
-      type: 'form',
-      data: { userKey, storeId: userInfo.currentStoreId }
-    })
+    // userInfo.storeInfo = await request({
+    //   demain: 'mall-store.xsyxsc.com',
+    //   url: 'mall-store/store/getStoreInfo',
+    //   type: 'form',
+    //   data: { userKey, storeId: userInfo.currentStoreId }
+    // })
     ctx.response.body = JSON.stringify(userInfo)
   },
   getCode: async (ctx, next) => {
