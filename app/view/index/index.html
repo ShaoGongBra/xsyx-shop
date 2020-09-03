@@ -708,16 +708,17 @@
         const { storeInfo = {} } = userInfo
         method = method.toUpperCase()
         data = {
-          areaId: storeInfo.areaId || 0,
-          storeId: storeInfo.storeId || 0,
+          areaId: storeInfo.areaId || 101,
+          storeId: storeInfo.storeId || 66880000022074,
           userKey: userInfo.userKey || '',
           ...data
         }
         $.ajax({
           url: 'https://' + demain + '/' + url,
           type: method,
-          data,
-          contentType: 'json',
+          data: type === 'json' && method === 'POST' ? JSON.stringify(data) : data,
+          dataType: 'json',
+          contentType: type === 'json' ? 'application/json' : 'application/x-www-form-urlencoded',
           success: res => {
             if (res.rspCode === 'success') {
               resolve(res.data)
@@ -895,14 +896,14 @@
         },
         async getQty(list) {
           const funcs = []
-          for (let i = 0, l = Math.ceil(list.length / pageSize); i < l; i++) {
+          for (let i = 0, l = Math.ceil(list.length / this.pageSize); i < l; i++) {
             funcs.push(ajax({
               url: 'user/product/getProductsMarketingData/v2',
               method: 'POST',
               type: 'form',
               data: {
                 marketingDataQueryReq: JSON.stringify({
-                  spuSns: list.filter((item, index) => index >= i * pageSize && index < (i + 1) * pageSize).map(item => item.spuSn),
+                  spuSns: list.filter((item, index) => index >= i * this.pageSize && index < (i + 1) * this.pageSize).map(item => item.spuSn),
                   areaId: 101
                 })
               },
@@ -1055,12 +1056,13 @@
           // })
           // })
           const userInfo = await this.userAjax('getUserInfo', data)
-          userInfo.storeInfo = await ajax({
-            demain: 'mall-store.xsyxsc.com',
-            url: 'mall-store/store/getStoreInfo',
-            type: 'form',
-            data: { userKey: data.key, storeId: userInfo.currentStoreId }
-          })
+          // userInfo.storeInfo = await ajax({
+          //   demain: 'mall-store.xsyxsc.com',
+          //   url: 'mall-store/store/getStoreInfo',
+          //   type: 'form',
+          //   data: { userKey: data.key, storeId: userInfo.currentStoreId }
+          // })
+          userInfo.storeInfo = {}
           console.log('用户信息', userInfo)
           return userInfo
         },
@@ -1092,8 +1094,7 @@
           })
           return res
         },
-        async submit() {
-          const { body } = ctx.request
+        async submit(data) {
           // 延迟请求 会提示太快开始
           // await asyncTimeOut(50)
           // 递归次数
@@ -1107,17 +1108,18 @@
               return await ajax({
                 demain: 'trade.xsyxsc.com',
                 url: 'tradeorder/order/create',
+                method: 'POST',
                 type: 'form',
                 data: {
-                  userKey: body.key,
+                  userKey: data.key,
                   order: {
-                    ai: body.areaId,
+                    ai: data.areaId,
                     ct: 'MINI_PROGRAM',
                     ot: 'CHOICE',
-                    p: body.tel,
-                    r: body.name,
-                    si: body.storeId,
-                    ess: body.eskuSn,
+                    p: data.tel,
+                    r: data.name,
+                    si: data.storeId,
+                    ess: data.eskuSn,
                     itemList: items
                   }
                 }
@@ -1146,7 +1148,7 @@
             }
           }
           try {
-            const res = await submit(body.itemList)
+            const res = await submit(data.itemList)
             res.error = 0
             return res
           } catch (error) {
@@ -1548,6 +1550,7 @@
       },
       // 创建订单
       submit() {
+        console.log('提交訂單')
         if (this.submitStatus) {
           toast('正在提交中')
           return
