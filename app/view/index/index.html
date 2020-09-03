@@ -1112,16 +1112,16 @@
                 type: 'form',
                 data: {
                   userKey: data.key,
-                  order: {
-                    ai: data.areaId,
+                  order: JSON.stringify({
+                    ai: data.areaId || 101,
                     ct: 'MINI_PROGRAM',
                     ot: 'CHOICE',
                     p: data.tel,
                     r: data.name,
-                    si: data.storeId,
+                    si: data.storeId || 66880000022074,
                     ess: data.eskuSn,
                     itemList: items
-                  }
+                  })
                 }
               })
             } catch (error) {
