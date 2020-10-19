@@ -1,21 +1,25 @@
 {
-  "name": "xingsheng",
+  "name": "xsyx",
+  "productName": "兴盛优选购物",
   "version": "1.0.0",
-  "description": "兴盛优选",
-  "main": "index.js",
+  "description": "兴盛优选PC端购物",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "supervisor index.js"
+    "start": "electron .",
+    "build": "electron-packager . --icon=icon.ico"
   },
+  "repository": "https://github.com/ShaoGongBra/xsyx-shop",
+  "keywords": [
+    "兴盛优选",
+    "shop",
+    "购物"
+  ],
   "author": "xujian",
   "license": "ISC",
+  "devDependencies": {
+    "electron": "^10.1.3"
+  },
   "dependencies": {
-    "koa": "^2.13.0",
-    "koa-bodyparser": "^4.3.0",
-    "koa-router": "^9.1.0",
-    "querystring": "^0.2.0",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.5",
-    "supervisor": "^0.12.0"
+    "electron-packager": "^15.1.0"
   }
 }
