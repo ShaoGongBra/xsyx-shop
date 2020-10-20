@@ -7,7 +7,7 @@
   "scripts": {
     "start": "electron .",
     "build:mac": "electron-packager . --platform=darwin --arch=x64 --icon=icon.icns --out=./dist",
-    "build:win": "electron-packager . --platform=win32 --arch=x64 --icon=icon.png --out=./dist"
+    "build:win": "electron-packager . --platform=win32 --arch=x64 --icon=icon.ico --out=./dist"
   },
   "repository": "https://github.com/ShaoGongBra/xsyx-shop",
   "keywords": [
