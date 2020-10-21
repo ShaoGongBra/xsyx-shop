@@ -225,22 +225,22 @@
       },
       async search(data) {
         const keyWord = data.keyWord
-        const getMalls = async list => {
+        const getMalls = async (list, page = 1) => {
           const data = await ajax({
             url: 'user/product/searchProduct',
             method: 'POST',
             type: 'form',
             data: {
               keyWord,
-              page: (list.length / this.pageSize | 0) + 1,
+              page,
               rows: this.pageSize,
               apiVersion: 'V2',
               openBrandhouse: 'TRUE'
             }
           })
           list.push(...data.records)
-          if (data.total > list.length) {
-            await getMalls(list)
+          if (data.total > list.length && data.records.length > 0) {
+            await getMalls(list, data.current + 1)
           }
         }
         const malls = []
