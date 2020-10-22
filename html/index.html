@@ -47,7 +47,12 @@
           @click="selectCate = index,getMalls()">{{item.windowName}}</div>
       </div>
       <div class="malls">
-        <div v-for="item in malls" class="mall-item" @click="showMallDetail(item)">
+        <div class="filter">
+          <div class="radio" v-for="(item, index) in filter">
+            <div class="item" :class="{hover: option.value === item.value}" v-for="option in item.list" @click="filter[index].value = option.value">{{option.name}}</div>
+          </div>
+        </div>
+        <div v-for="item in filterList()" class="mall-item" @click="showMallDetail(item)">
           <img :src="item.adUrl" alt="">
           <div class="right">
             <span class="title">{{item.prName}}</span>

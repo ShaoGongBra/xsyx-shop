@@ -125,7 +125,7 @@ input:focus {
 }
 
 .cates::-webkit-scrollbar {
-    display: none
+    display: none;
 }
 
 .cates .item {
@@ -139,16 +139,43 @@ input:focus {
     background-color: #2a2c30;
 }
 
+.filter {
+    padding: 0 10px;
+    align-self: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.filter .radio {
+    display: flex;
+    flex-direction: row;
+    background-color: #535356;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
+.filter .radio .item {
+    padding: 5px 10px;
+    color: #fff;
+    font-size: 13px;
+}
+
+.filter .radio .item.hover {
+    background-color: #2a2c30;
+}
+
 .malls {
     flex: 1;
     overflow-y: auto;
 }
 
 .malls::-webkit-scrollbar {
-    display: none
+    display: none;
 }
 
-#app .main .content{
+#app .main .content {
     width: 450px;
 }
 
@@ -247,7 +274,7 @@ input:focus {
 }
 
 .cart::-webkit-scrollbar {
-    display: none
+    display: none;
 }
 
 .cart .head {
@@ -297,7 +324,7 @@ input:focus {
 }
 
 .mall-detail .scroll::-webkit-scrollbar {
-    display: none
+    display: none;
 }
 
 .mall-detail .swiper-container {
@@ -384,7 +411,8 @@ input:focus {
     width: 430px;
 }
 
-.mall-detail .log {}
+.mall-detail .log {
+}
 
 .mall-detail .log .item {
     flex-direction: row;
@@ -576,7 +604,7 @@ input:focus {
     z-index: 2000;
     left: 50%;
     top: 45%;
-    transition: all .5s;
+    transition: all 0.5s;
     -webkit-transform: translateX(-50%) translateY(-50%);
     -moz-transform: translateX(-50%) translateY(-50%);
     -ms-transform: translateX(-50%) translateY(-50%);

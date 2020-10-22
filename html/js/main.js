@@ -189,7 +189,7 @@
             arr.push(...res[key])
           }
         }
-        return arr
+        return arr.filter((item, index, arr) => getInArrayIndex(arr, item.windowId, 'windowId') === index)
       },
       async getQty(list) {
         const funcs = []
@@ -653,7 +653,21 @@ var app = new Vue({
     showUserInfo: false,
     userInfo: {},
     storeInfo: {},
-    totalPrice: 0
+    totalPrice: 0,
+    filter: [
+      {
+        title: '限购',
+        name: 'limit',
+        value: 0,
+        list: [{ name: '商品限购 全部', value: 0 }, { name: '1件', value: 1 }, { name: '2件', value: 2 }, { name: '5件', value: 5 }, { name: '10件', value: 10 }]
+      },
+      {
+        title: '时间',
+        name: 'time',
+        value: 'all',
+        list: [{ name: '全部时间', value: 'all' }, { name: '0点', value: '00:00' }, { name: '10点', value: '10:00' }, { name: '15点', value: '15:00' }]
+      }
+    ]
   },
   mounted() {
     this.init()
@@ -730,6 +744,17 @@ var app = new Vue({
     },
     switch(index) {
       this.selectCate = index
+    },
+    filterList() {
+      const where = {}
+      this.filter.map(item => where[item.name] = item.value)
+      return this.malls.filter(item =>
+        (where.limit === 0
+          || (where.limit >= item.ulimitQty && item.ulimitQty !== 0))
+        &&
+        (where.time === 'all'
+          || item.tmBuyStart.indexOf(where.time) === 11)
+      )
     },
     async getMalls() {
       this.malls.splice(0, this.malls.length)
