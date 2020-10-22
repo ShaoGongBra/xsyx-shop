@@ -882,7 +882,7 @@ var app = new Vue({
       for (let i = 0, il = this.cart.length; i < il; i++) {
         const list = this.cart[i].list
         // 跳过未开始的商品
-        if (this.cart[i].timeStamp > (new Date()).getTime()) {
+        if (this.cart[i].timeStamp > (new Date()).getTime() - 1000) {
           break
         }
         for (let j = 0; j < list.length; j++) {
@@ -960,13 +960,14 @@ class countDown {
     if (this.timer) {
       this.stop()
     }
+    let oldTime = time
     if (isEndTime) {
-      time = time - now
+      oldTime = time - now
     }
     this.formatStr = formatStr
     // 时间余数 保证在最后一下执行刚好时间结束
-    const remainder = time % interval
-    this.time = time - remainder
+    const remainder = oldTime % interval
+    this.time = oldTime - remainder
     this.onFunc && this.onFunc(endTime(this.time, this.formatStr))
     await asyncTimeOut(remainder)
     let mark = 0
@@ -979,7 +980,7 @@ class countDown {
       }
       this.onFunc && this.onFunc(endTime(this.time, this.formatStr))
       // 每执行5次重新执行定时器，防止定时器出现偏差
-      if(isEndTime && mark === 5){
+      if (isEndTime && mark === 5 && this.time > 3000) {
         this.start(time, formatStr, isEndTime, interval)
         return
       }
