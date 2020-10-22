@@ -969,6 +969,7 @@ class countDown {
     this.time = time - remainder
     this.onFunc && this.onFunc(endTime(this.time, this.formatStr))
     await asyncTimeOut(remainder)
+    let mark = 0
     this.timer = setInterval(() => {
       this.time -= interval
       if (this.time <= 0) {
@@ -977,6 +978,12 @@ class countDown {
         return
       }
       this.onFunc && this.onFunc(endTime(this.time, this.formatStr))
+      // 每执行5次重新执行定时器，防止定时器出现偏差
+      if(isEndTime && mark === 5){
+        this.start(time, formatStr, isEndTime, interval)
+        return
+      }
+      mark++
     }, interval)
   }
 
