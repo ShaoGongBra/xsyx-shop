@@ -882,7 +882,7 @@ var app = new Vue({
       for (let i = 0, il = this.cart.length; i < il; i++) {
         const list = this.cart[i].list
         // 跳过未开始的商品
-        if (this.cart[i].timeStamp > (new Date()).getTime() - 1000) {
+        if (this.cart[i].timeStamp > (new Date()).getTime() + 1000) {
           break
         }
         for (let j = 0; j < list.length; j++) {
