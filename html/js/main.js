@@ -39,8 +39,7 @@
       return array.indexOf(value)
     } else {
       for (let i = 0, l = array.length; i < l; i++) {
-        const element = array[i]
-        if (element[key] == value) {
+        if (array[i][key] == value) {
           return i
         }
       }
@@ -189,7 +188,12 @@
             arr.push(...res[key])
           }
         }
-        return arr.filter((item, index, arr) => getInArrayIndex(arr, item.windowId, 'windowId') === index)
+        return arr.map(item => {
+          if (item.brandWindowId && !item.windowId) {
+            item.windowId = item.brandWindowId
+          }
+          return item
+        }).filter((item, index, array) => getInArrayIndex(array, item.windowId, 'windowId') === index)
       },
       async getQty(list) {
         const funcs = []
