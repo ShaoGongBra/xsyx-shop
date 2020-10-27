@@ -1,7 +1,7 @@
 {
   "name": "xsyx",
   "productName": "兴盛优选购物",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "兴盛优选PC端购物",
   "main": "main.js",
   "scripts": {
