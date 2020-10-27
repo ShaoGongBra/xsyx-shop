@@ -27,10 +27,10 @@
     <div class="header">
       <div class="left">
         <span>兴盛优选购物</span>
-        <span @click="notification">发送通知</span>
       </div>
       <input type="text" placeholder="请输入关键词搜索商品" @input="search">
       <div class="right">
+        <div class="menu" @click="contentRoutre = 'order'">订单</div>
         <div class="user">
           <img v-if="userInfo.headImgUrl" :src="userInfo.headImgUrl" class="img"
             @mouseover="userShow('head', true, $event)" @mouseout="userShow('head', false, $event)">
@@ -70,14 +70,15 @@
         </div>
       </div>
       <div class="content">
-        <goods-detail v-if="selectMall.prId" :mall="selectMall" @close="selectMall = {}"></goods-detail>
-        <div v-if="!selectMall.prId" class="cart">
+        <goods-detail v-if="contentRoutre === 'goods-detail'" :mall="selectMall" @close="contentRoutre = 'cart'"></goods-detail>
+        <order v-else-if="contentRoutre === 'order'" @close="contentRoutre = 'cart'"></order>
+        <div v-else class="cart">
           <div v-for="time in cart">
             <div class="head">
               <span class="time">{{time.time.substr(5, 11)}}</span>
               <span class="timer">{{time.timer === null ? '已开始' : time.timeText}}</span>
             </div>
-            <div v-for="item in time.list" class="mall-item">
+            <div v-for="item in time.list" class="mall-item" @click="showMallDetail(item)">
               <img :src="item.adUrl" alt="">
               <div class="right">
                 <span class="title">{{item.prName}}</span>

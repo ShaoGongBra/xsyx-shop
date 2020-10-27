@@ -173,50 +173,57 @@ const app = new Vue({
         }
       }
     },
-    'order-list': {
+    'order': {
       data() {
         return {
-          nav: ['商品详情', '购买记录'],
-          navIndex: 0,
-          list: [],
+          list: {
+            pay: [],
+            paid: []
+          },
+          loading: true
         }
       },
-      props: {
-      },
       template: `
-        <div v-if="info.prId" class="mall-detail">
+        <div class="order">
           <div class="close" @click="$emit('close')">关闭</div>
           <div class="scroll">
-            <swiper :options="swiperOption">
-              <swiper-slide v-for="item in info.primaryUrls" :key="item">
-                <img :src="item" alt="">
-              </swiper-slide>
-              <div class="swiper-pagination" slot="pagination"></div>
-            </swiper>
-            <div class="title">{{info.prName}}</div>
-            <div class="price">
-              <span>￥{{info.saleAmt}}</span>
-              <span class="old">￥{{info.marketAmt}}</span>
-            </div>
-            <div class="line"></div>
-            <div class="option">购买数量：{{info.daySaleQty}}/{{info.limitQty === 0?'不限购':info.limitQty}}</div>
-            <div class="option">限购数量：{{info.ulimitQty>0?info.ulimitQty:'不限购'}}</div>
-            <div class="option">购买时间：{{info.tmBuyStart.substr(5, 11)}} - {{info.tmBuyEnd.substr(5, 11)}}</div>
-            <div class="line"></div>
-            <div class="nav">
-             <span class="item" v-for="(item, index) in nav" :key="item" :class="{hover: navIndex === index}" @click="switchNav(index)">{{item}}</span> 
-            </div>
-            <div class="detail" v-if="navIndex === 0">
-              <img v-for="item in info.detailUrls" :src="item" :key="item" alt="">
-            </div>
-            <div class="log" v-if="navIndex === 1">
-              <div class="item" v-for="item in log" :key="item.avatar">
-                <img :src="item.avatar" /> 
-                <div class="info">
-                  <span class="name">{{item.wxName}}</span>
-                  <span class="time">{{item.tmTrade}}</span>
+            <div class="group">
+              <div class="tip">待支付</div>
+              <div class="empty" v-if="list.pay.length === 0 && !loading">没有订单</div>
+              <div class="item" v-for="item in list.pay" :key="item.orderId">
+                <div class="head">
+                  <div class="date">{{dateToStr('yyyy-MM-dd HH:mm:ss', item.orderDate)}}</div>
                 </div>
-                <span class="num">{{item.buyQty}}件</span>
+                <div class="goods" v-for="goods in item.itemList" :key="goods.productId">
+                  <img :src="goods.thumbnailsUrl" />
+                  <div class="info">
+                    <div class="name">{{goods.productName}}</div>
+                    <div class="bottom">
+                      <div class="price">{{goods.itemAdjustedPrice}}<span>{{goods.itemListPrice}}</span></div>
+                      <div class="num">{{goods.qty}}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="group">
+              <div class="tip">待提货</div>
+              <div class="empty" v-if="list.paid.length === 0 && !loading">没有订单</div>
+              <div class="item" v-for="item in list.paid" :key="item.orderId">
+                <div class="head">
+                <div class="date">{{dateToStr('yyyy-MM-dd HH:mm:ss', item.orderDate)}}</div>
+                  <div class="code">提货码：{{item.billOfLading}}</div>
+                </div>
+                <div class="goods" v-for="goods in item.itemList" :key="goods.productId">
+                  <img :src="goods.thumbnailsUrl" />
+                  <div class="info">
+                    <div class="name">{{goods.productName}}</div>
+                    <div class="bottom">
+                      <div class="price">￥{{goods.itemAdjustedPrice}}<span>￥{{goods.itemListPrice}}</span></div>
+                      <div class="num">x{{goods.qty}}</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -232,20 +239,11 @@ const app = new Vue({
       },
       methods: {
         async getList() {
-          const list = await request({
-            url: 'index/mall',
-            data: {
-              spuSn: this.mall.spuSn,
-              skuSn: this.mall.skuSn,
-              productId: this.mall.prId,
-              activityId: this.mall.acId
-            }
+          this.loading = true
+          this.list = await request({
+            url: 'index/orderList'
           })
-          
-        },
-        async switchNav(index) {
-          this.navIndex = index
-          
+          this.loading = false
         }
       }
     },
@@ -255,6 +253,7 @@ const app = new Vue({
     cates: [],
     selectCate: 0,
     malls: [],
+    contentRoutre: 'cart', // 详情页面显示路由 cart 购物车(默认) goods-detail商品详情 order 订单
     selectMall: {},
     cart: [],
     showUserInfo: false,
@@ -287,6 +286,34 @@ const app = new Vue({
       })
       this.selectCate = 0
       this.getMalls()
+    },
+    async getUserInfo(key) {
+      if (!key) {
+        toast('请输入key')
+        throw { message: '请输入key' }
+      }
+      if (key.length !== 36) {
+        toast('无效的key')
+        throw { message: '无效的key' }
+      }
+      try {
+        this.userInfo = await request({
+          url: 'index/getUserInfo',
+          data: {
+            key
+          }
+        })
+        this.userInfo.key = key
+        this.storeInfo = this.userInfo.storeInfo
+        localStorage.setItem('userInfo', JSON.stringify(this.userInfo))
+        window.userInfo = this.userInfo
+        return this.userInfo
+      } catch (error) {
+        this.userInfo = {}
+        localStorage.removeItem("userInfo")
+        toast('用户信息失效')
+        throw { message: '用户信息失效' }
+      }
     },
     async login() {
       // 获取本地用户信息
@@ -375,6 +402,7 @@ const app = new Vue({
     },
     async showMallDetail(mall) {
       this.selectMall = mall
+      this.contentRoutre = 'goods-detail'
     },
     addCart(mall, type = 'add', e) {
       e && (e.stopPropagation(), this.selectMall = {})
@@ -443,42 +471,10 @@ const app = new Vue({
       }
       this.totalPrice = num
     },
-    async getUserInfo(key) {
-      if (!key) {
-        toast('请输入key')
-        throw { message: '请输入key' }
-      }
-      if (key.length !== 36) {
-        toast('无效的key')
-        throw { message: '无效的key' }
-      }
-      try {
-        this.userInfo = await request({
-          url: 'index/getUserInfo',
-          data: {
-            key
-          }
-        })
-        this.userInfo.key = key
-        this.storeInfo = this.userInfo.storeInfo
-        localStorage.setItem('userInfo', JSON.stringify(this.userInfo))
-        window.userInfo = this.userInfo
-        return this.userInfo
-      } catch (error) {
-        this.userInfo = {}
-        localStorage.removeItem("userInfo")
-        toast('用户信息失效')
-        throw { message: '用户信息失效' }
-      }
-    },
     // 创建订单
     submit() {
       if (this.submitStatus) {
         toast('正在提交中')
-        return
-      }
-      if (!this.userInfo.key) {
-        toast('请先获取用户信息')
         return
       }
       if (this.cart.length === 0) {
@@ -514,7 +510,6 @@ const app = new Vue({
         url: 'index/submit',
         type: 'POST',
         data: {
-          key: this.userInfo.key,
           tel: this.userInfo.mobileNo,
           name: this.userInfo.nickName,
           areaId: this.storeInfo.areaId,
@@ -538,9 +533,13 @@ const app = new Vue({
           const myNotification = new Notification('商品购买成功', {
             body: '请在10分钟内前往小程序支付订单'
           })
-
           myNotification.onclick = () => {
-            console.log('Notification clicked')
+            if (this.contentRoutre === 'order') {
+              this.contentRoutre = 'cart'
+              setTimeout(() => this.contentRoutre = 'order', 50)
+            } else {
+              this.contentRoutre = 'order'
+            }
           }
 
         } else {
@@ -549,15 +548,6 @@ const app = new Vue({
       }).catch(err => {
         this.submitStatus = false
       })
-    },
-    notification() {
-      const myNotification = new Notification('商品购买成功', {
-        body: '请在10分钟内前往小程序支付订单'
-      })
-
-      myNotification.onclick = () => {
-        console.log('Notification clicked')
-      }
     }
   }
 })
