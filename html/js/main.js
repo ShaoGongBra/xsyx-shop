@@ -932,6 +932,14 @@ var app = new Vue({
           }
           this.cartTotal()
           toast('购买成功')
+          const myNotification = new Notification('商品购买成功', {
+            body: '请在10分钟内前往小程序支付订单'
+          })
+          
+          myNotification.onclick = () => {
+            console.log('Notification clicked')
+          }
+          
         } else {
           toast(res.message)
         }
