@@ -19,7 +19,7 @@
   <script src="./js/vue.min.js"></script>
   <script src="./js/jquery.min.js"></script>
   <script src="./js/vue-awesome-swiper.js"></script>
-  <script src="renderer.js"></script>
+  <!-- <script src="renderer.js"></script> -->
 </head>
 
 <body>
@@ -27,6 +27,7 @@
     <div class="header">
       <div class="left">
         <span>兴盛优选购物</span>
+        <span @click="notification">发送通知</span>
       </div>
       <input type="text" placeholder="请输入关键词搜索商品" @input="search">
       <div class="right">
@@ -118,6 +119,6 @@
   </div>
   <div class="toast"></div>
 </body>
+<script src="./js/public.js"></script>
 <script src="./js/main.js"></script>
-
 </html>
