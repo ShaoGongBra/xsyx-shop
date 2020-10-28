@@ -90,9 +90,9 @@
                   <span class="price">￥{{item.saleAmt}}</span>
                   <span class="price-old">￥{{item.marketAmt}}</span>
                   <div class="action">
-                    <span class="btn" @click="addCart(item, 'reduce')">减</span>
+                    <span class="btn" @click="addCart(item, 'reduce', $event)">减</span>
                     <span class="num">{{item.qty}}</span>
-                    <span class="btn" @click="addCart(item, 'add')">加</span>
+                    <span class="btn" @click="addCart(item, 'add', $event)">加</span>
                   </div>
                 </div>
               </div>

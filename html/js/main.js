@@ -200,7 +200,7 @@ const app = new Vue({
                     <div class="name">{{goods.productName}}</div>
                     <div class="bottom">
                       <div class="price">{{goods.itemAdjustedPrice}}<span>{{goods.itemListPrice}}</span></div>
-                      <div class="num">{{goods.qty}}</div>
+                      <div class="num">x{{goods.qty}}</div>
                     </div>
                   </div>
                 </div>
@@ -405,7 +405,7 @@ const app = new Vue({
       this.contentRoutre = 'goods-detail'
     },
     addCart(mall, type = 'add', e) {
-      e && (e.stopPropagation(), this.selectMall = {})
+      e && (e.stopPropagation(), this.contentRoutre = 'cart')
       if (mall.limitQty === mall.number.daySaleQty && mall.limitQty !== 0) {
         toast('已售完')
         return
