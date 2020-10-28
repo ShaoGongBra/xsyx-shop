@@ -50,9 +50,9 @@ input:focus {
     justify-content: flex-end;
 }
 
-.header .menu{
+.header .menu {
     color: #eee;
-    padding: 4px 20px;
+    padding: 4px 10px;
     font-size: 14px;
     font-weight: bold;
 }
@@ -61,6 +61,7 @@ input:focus {
     position: relative;
     width: 30px;
     height: 30px;
+    margin-left: 10px;
 }
 
 .header .user .img {
@@ -628,6 +629,57 @@ input:focus {
     max-width: 300px;
 }
 
+.update {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 240px;
+    background-color: #2c2a2d;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.update .title {
+    padding: 10px;
+    background-color: #1d1d1d;
+    text-align: center;
+    font-size: 16px;
+    color: #eee;
+}
+.update .name {
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #eee;
+    margin-top: 10px;
+}
+.update .content {
+    padding: 14px 20px;
+    font-size: 14px;
+    color: #eee;
+    white-space: pre-line;
+    line-height: 1.5;
+}
+.update .button {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 10px 20px;
+}
+
+.update .button .close {
+    font-size: 12px;
+    color: #eee;
+}
+
+.update .button .open {
+    font-size: 14px;
+    background-color: #444;
+    color: #eee;
+    padding: 5px 12px;
+    border-radius: 30px;
+    margin-left: 16px;
+}
+
 .order {
     width: 450px;
     height: 100%;
@@ -654,14 +706,14 @@ input:focus {
 .order .scroll::-webkit-scrollbar {
     display: none;
 }
-.order .tip{
+.order .tip {
     font-size: 24px;
     color: #eee;
     font-weight: bold;
     text-align: center;
     padding: 10px 0;
 }
-.order .empty{
+.order .empty {
     background-color: #2c2a2d;
     border-radius: 10px;
     padding: 50px 15px;
@@ -670,69 +722,69 @@ input:focus {
     align-items: center;
     justify-content: center;
 }
-.order .item{
+.order .item {
     background-color: #2c2a2d;
     border-radius: 10px;
     overflow: hidden;
     margin-top: 15px;
 }
-.order .group div:nth-child(2){
+.order .group div:nth-child(2) {
     margin-top: 0;
 }
-.order .item .head{
+.order .item .head {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     padding: 10px 15px;
     background-color: #1d1d1d;
 }
-.order .item .head .date{
+.order .item .head .date {
     font-size: 14px;
     color: #eee;
 }
-.order .item .head .code{
+.order .item .head .code {
     font-size: 16px;
     color: #eee;
 }
-.order .item .goods{
+.order .item .goods {
     flex-direction: row;
     align-items: center;
     margin: 0 15px;
     border-top: 1px solid #1d1d1d;
     padding: 10px 0;
 }
-.order .item .goods:nth-child(2){
+.order .item .goods:nth-child(2) {
     border-top: none;
 }
-.order .item .goods img{
+.order .item .goods img {
     width: 80px;
     height: 80px;
     margin-right: 10px;
     flex-shrink: 0;
 }
-.order .item .goods .info{
+.order .item .goods .info {
     flex: 1;
     height: 74px;
     justify-content: space-between;
 }
-.order .item .goods .name{
+.order .item .goods .name {
     font-size: 14px;
     font-weight: bold;
     color: #eee;
 }
-.order .item .goods .bottom{
+.order .item .goods .bottom {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
 }
-.order .item .goods .price{
+.order .item .goods .price {
     font-size: 18px;
     font-weight: bold;
     color: #e60012;
     flex-direction: row;
     align-items: flex-end;
 }
-.order .item .goods .price span{
+.order .item .goods .price span {
     font-size: 14px;
     color: #eee;
     text-decoration: line-through;
@@ -740,7 +792,7 @@ input:focus {
     margin-bottom: 2px;
     font-weight: normal;
 }
-.order .item .goods .num{
+.order .item .goods .num {
     color: #eee;
     font-size: 14px;
 }

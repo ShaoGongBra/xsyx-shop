@@ -273,10 +273,18 @@ const app = new Vue({
         value: 'all',
         list: [{ name: '全部时间', value: 'all' }, { name: '0点', value: '00:00' }, { name: '10点', value: '10:00' }, { name: '15点', value: '15:00' }]
       }
-    ]
+    ],
+    // 版本更新
+    updateInfo: {
+      url: '',
+      name: '',
+      message: '',
+      show: false
+    }
   },
   mounted() {
     this.init()
+    this.update()
   },
   methods: {
     async init() {
@@ -286,6 +294,31 @@ const app = new Vue({
       })
       this.selectCate = 0
       this.getMalls()
+    },
+    nav(url) {
+      const { shell } = require('electron')
+      shell.openExternal(url)
+    },
+    update() {
+      $.ajax({
+        url: 'https://api.github.com/repos/ShaoGongBra/xsyx-shop/releases/latest',
+        success: res => {
+          const version = require("../package.json").version.split('.')
+          const newVersion = res.tag_name.split('.')
+          for (let i = 0; i < version.length; i++) {
+            if (Number(version[i]) < Number(newVersion[i])) {
+              this.updateInfo = {
+                url: res.html_url,
+                message: res.body,
+                name: res.name,
+                show: true
+              }
+              break
+            }
+          }
+
+        }
+      })
     },
     async getUserInfo(key) {
       if (!key) {

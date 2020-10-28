@@ -15,11 +15,11 @@
   </style>
   <link href="./css/main.css" rel="stylesheet">
   <link href="./css/swiper.min.css" rel="stylesheet">
+  <script src="./js/jquery.min.js"></script>
+  <script>if (typeof module === 'object') { window.jQuery = window.$ = module.exports; };</script>
   <script src="./js/swiper.min.js"></script>
   <script src="./js/vue.min.js"></script>
-  <script src="./js/jquery.min.js"></script>
   <script src="./js/vue-awesome-swiper.js"></script>
-  <!-- <script src="renderer.js"></script> -->
 </head>
 
 <body>
@@ -30,6 +30,7 @@
       </div>
       <input type="text" placeholder="请输入关键词搜索商品" @input="search">
       <div class="right">
+        <div class="menu" @click="nav('https://github.com/ShaoGongBra/xsyx-shop')">关于(github)</div>
         <div class="menu" @click="contentRoutre = 'order'">订单</div>
         <div class="user">
           <img v-if="userInfo.headImgUrl" :src="userInfo.headImgUrl" class="img"
@@ -51,7 +52,8 @@
       <div class="malls">
         <div class="filter">
           <div class="radio" v-for="(item, index) in filter">
-            <div class="item" :class="{hover: option.value === item.value}" v-for="option in item.list" @click="filter[index].value = option.value">{{option.name}}</div>
+            <div class="item" :class="{hover: option.value === item.value}" v-for="option in item.list"
+              @click="filter[index].value = option.value">{{option.name}}</div>
           </div>
         </div>
         <div v-for="item in filterList()" class="mall-item" @click="showMallDetail(item)">
@@ -70,7 +72,8 @@
         </div>
       </div>
       <div class="content">
-        <goods-detail v-if="contentRoutre === 'goods-detail'" :mall="selectMall" @close="contentRoutre = 'cart'"></goods-detail>
+        <goods-detail v-if="contentRoutre === 'goods-detail'" :mall="selectMall" @close="contentRoutre = 'cart'">
+        </goods-detail>
         <order v-else-if="contentRoutre === 'order'" @close="contentRoutre = 'cart'"></order>
         <div v-else class="cart">
           <div v-for="time in cart">
@@ -117,9 +120,21 @@
       </div>
     </div>
     <login v-if="showLogin" @input="loginInput"></login>
+    <div class="update" v-if="updateInfo.show">
+      <div class="title">更新提示</div>
+      <p class="name">{{updateInfo.name}}</p>
+      <p class="content">{{updateInfo.message}}</p>
+      <div class="button">
+        <div class="close" @click="updateInfo.show = false">暂不更新</div>
+        <div class="open" @click="(updateInfo.show = false,nav(updateInfo.url))">立即更新</div>
+      </div>
+    </div>
   </div>
   <div class="toast"></div>
 </body>
+<script>
+</script>
 <script src="./js/public.js"></script>
 <script src="./js/main.js"></script>
+
 </html>
