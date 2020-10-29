@@ -6,8 +6,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build:mac": "electron-packager . --platform=darwin --arch=x64 --icon=icon.icns --app-version=1.0.4 --out=./dist",
-    "build:win": "electron-packager . --platform=win32 --arch=x64 --icon=icon.ico --app-version=1.0.4 --out=./dist"
+    "build:mac": "electron-packager . --platform=darwin --arch=x64 --icon=icon.icns --app-version=1.0.5 --out=./dist",
+    "build:win": "electron-packager . --platform=win32 --arch=x64 --icon=icon.ico --app-version=1.0.6 --out=./dist"
   },
   "repository": "https://github.com/ShaoGongBra/xsyx-shop",
   "keywords": [
