@@ -297,6 +297,10 @@
             windowName: "0点秒杀"
           },
           {
+            windowId: 1054,
+            windowName: "下午整点"
+          },
+          {
             windowId: 4,
             windowName: "10点爆款"
           },
@@ -307,6 +311,22 @@
           {
             windowId: 489,
             windowName: "精选10点"
+          },
+          {
+            windowId: 45,
+            windowName: "每天一品"
+          },
+          {
+            windowId: 490,
+            windowName: "每日精选"
+          },
+          {
+            windowId: 692,
+            windowName: "今日新品"
+          },
+          {
+            windowId: 627,
+            windowName: "火锅专场"
           }
         ]
         for (const key in res) {

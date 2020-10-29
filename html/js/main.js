@@ -265,13 +265,13 @@ const app = new Vue({
         title: '限购',
         name: 'limit',
         value: 0,
-        list: [{ name: '商品限购 全部', value: 0 }, { name: '1件', value: 1 }, { name: '2件', value: 2 }, { name: '5件', value: 5 }, { name: '10件', value: 10 }]
+        list: [{ name: '商品限购 全部', value: 0 }, { name: '1件', value: 1 }, { name: '2件', value: 2 }, { name: '10件', value: 10 }]
       },
       {
         title: '时间',
         name: 'time',
         value: 'all',
-        list: [{ name: '全部时间', value: 'all' }, { name: '0点', value: '00:00' }, { name: '10点', value: '10:00' }, { name: '15点', value: '15:00' }]
+        list: [{ name: '全部时间', value: 'all' }, { name: '0点', value: '00:00' }, { name: '10点', value: '10:00' }]
       }
     ],
     // 版本更新
@@ -280,7 +280,9 @@ const app = new Vue({
       name: '',
       message: '',
       show: false
-    }
+    },
+    // 播放视频
+    videoUrl: ''
   },
   mounted() {
     this.init()
@@ -432,6 +434,13 @@ const app = new Vue({
           id: cate.brandWindowId || cate.windowId
         }
       })
+    },
+    stopPropagation(e) {
+      e.stopPropagation()
+    },
+    playVideo(url, e) {
+      e && e.stopPropagation()
+      this.videoUrl = url
     },
     async showMallDetail(mall) {
       this.selectMall = mall

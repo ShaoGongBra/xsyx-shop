@@ -57,12 +57,17 @@
           </div>
         </div>
         <div v-for="item in filterList()" class="mall-item" @click="showMallDetail(item)">
-          <img :src="item.adUrl" alt="">
+          <div class="ad-image">
+            <img :src="item.adUrl" alt="">
+            <div v-if="item.videoUrl" class="play-bg" @click="playVideo(item.videoUrl, $event)">
+              <div class="play"></div>
+            </div>
+          </div>
           <div class="right">
             <span class="title">{{item.prName}}</span>
             <span class="num">{{item.tmBuyStart.substr(5, 11)}} - {{item.tmBuyEnd.substr(5, 11)}}</span>
             <span class="num">{{item.number && item.number.daySaleQty}}/{{item.limitQty === 0 ? '不限制' : item.limitQty}}
-              {{item.ulimitQty > 0 ? '每人限购:'+item.ulimitQty : ''}}</span>
+              {{item.ulimitQty > 0 ? '每人限购:' + item.ulimitQty : ''}}</span>
             <div class="bottom">
               <span class="price">￥{{item.saleAmt}}</span>
               <span class="price-old">￥{{item.marketAmt}}</span>
@@ -82,7 +87,12 @@
               <span class="timer">{{time.timer === null ? '已开始' : time.timeText}}</span>
             </div>
             <div v-for="item in time.list" class="mall-item" @click="showMallDetail(item)">
-              <img :src="item.adUrl" alt="">
+              <div class="ad-image">
+                <img :src="item.adUrl" alt="">
+                <div v-if="item.videoUrl" class="play-bg" @click="playVideo(item.videoUrl, $event)">
+                  <div class="play"></div>
+                </div>
+              </div>
               <div class="right">
                 <span class="title">{{item.prName}}</span>
                 <span class="num">{{item.tmBuyStart.substr(5, 11)}} - {{item.tmBuyEnd.substr(5, 11)}}</span>
@@ -128,6 +138,9 @@
         <div class="close" @click="updateInfo.show = false">暂不更新</div>
         <div class="open" @click="(updateInfo.show = false,nav(updateInfo.url))">立即更新</div>
       </div>
+    </div>
+    <div v-if="videoUrl" class="pop-video" @click="videoUrl = ''">
+      <video :src="videoUrl" controls="controls" autoplay @click="stopPropagation"></video>
     </div>
   </div>
   <div class="toast"></div>
