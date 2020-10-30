@@ -119,7 +119,7 @@
         <div class="info">
           <img v-if="storeInfo.logoUrl" class="img" :src="storeInfo.logoUrl" alt="">
           <div class="right">
-            <span class="name">{{storeInfo.storeName}}</span>
+            <span class="name">{{storeInfo.storeName}}<span :click="storeShow = true">[更换]</span></span>
             <span class="tel">{{storeInfo.detailAddress}}</span>
           </div>
         </div>
@@ -129,6 +129,7 @@
         </div>
       </div>
     </div>
+    <store></store>
     <login v-if="showLogin" @input="loginInput"></login>
     <div class="update" v-if="updateInfo.show">
       <div class="title">更新提示</div>
@@ -145,9 +146,9 @@
   </div>
   <div class="toast"></div>
 </body>
-<script>
-</script>
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=42e2f98b596c7b448c2acdab7432bb73"></script>
 <script src="./js/public.js"></script>
+<script src="./js/comp.js"></script>
 <script src="./js/main.js"></script>
 
 </html>

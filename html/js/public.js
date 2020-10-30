@@ -620,6 +620,32 @@
           pay: res[0].data,
           paid: res[1].data
         }
+      },
+      async amapGeo(data) {
+        if (!data.keyword) {
+          return Promise.resolve([])
+        }
+        return new Promise((resolve, reject) => {
+          $.ajax({
+            url: 'https://restapi.amap.com/v3/place/text',
+            data: {
+              key: 'f95345d044311f2e0c05db35906ffbf1',
+              keywords: data.keyword,
+              city: '长沙'
+            },
+            dataType: 'json',
+            success: res => {
+              if (res.status === '1') {
+                resolve(res.pois)
+              } else {
+                reject({ message: res.info })
+              }
+            },
+            error: err => {
+              reject(err)
+            }
+          })
+        })
       }
     }
   }
