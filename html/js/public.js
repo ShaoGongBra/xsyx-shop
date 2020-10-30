@@ -323,10 +323,6 @@
           {
             windowId: 692,
             windowName: "今日新品"
-          },
-          {
-            windowId: 627,
-            windowName: "火锅专场"
           }
         ]
         for (const key in res) {
