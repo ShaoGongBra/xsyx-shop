@@ -586,6 +586,9 @@ const app = new Vue({
 
         } else {
           toast(res.message)
+          new Notification('商品购买失败', {
+            body: res.message
+          })
         }
       }).catch(err => {
         this.submitStatus = false
