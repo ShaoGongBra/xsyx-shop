@@ -354,6 +354,12 @@ const app = new Vue({
       }).catch(err => {
         this.submitStatus = false
       })
+    },
+    editStore() {
+      this.$refs.store.select().then(store => {
+        this.storeInfo = store
+        window.userInfo.storeInfo = store
+      })
     }
   }
 })

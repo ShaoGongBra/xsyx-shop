@@ -18,6 +18,30 @@ input:focus {
     border: none;
 }
 
+.number-of-lines {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.number-of-lines--2 {
+    display: -webkit-box;
+    overflow: hidden;
+
+    /*! autoprefixer: ignore next */
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+}
+.number-of-lines--3 {
+    display: -webkit-box;
+    overflow: hidden;
+
+    /*! autoprefixer: ignore next */
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 3;
+}
+
 #app {
     margin: 0 auto;
     height: 100vh;
@@ -862,12 +886,21 @@ input:focus {
     background-color: #2c2a2d;
     flex-direction: row;
     align-items: stretch;
+    position: relative;
 }
 
 .store #amap {
     width: 500px;
     height: 600px;
     background-color: rgb(26, 35, 44);
+    flex-shrink: 0;
+}
+.store .position {
+    position: absolute;
+    left: 230px;
+    top: 260px;
+    width: 40px;
+    height: 40px;
 }
 .store .right {
     flex: 1;
@@ -890,19 +923,17 @@ input:focus {
     background-color: #2c2a2d;
 }
 
-.store .pos,
-.store .name,
 .store .my {
-    
+    padding-top: 10px;
 }
 
-.store .content{
+.store .content {
+    height: 1px;
     flex: 1;
-    padding: 16px;
     position: relative;
 }
-.store .content input{
-    width: 100%;
+.store .content input {
+    width: calc(100% - 32px);
     border-radius: 20px;
     margin: 0;
     background-color: #555;
@@ -911,30 +942,115 @@ input:focus {
     padding: 0 20px;
     color: #e2e2e2;
     box-sizing: border-box;
+    margin: 10px 16px;
 }
 
-.store .pos .add-list{
+.store .pos .add-list {
     position: absolute;
     left: 16px;
     top: 50px;
     right: 16px;
-    max-height: 400px;
+    max-height: 300px;
     background-color: #333;
     overflow-y: auto;
+    z-index: 1;
     border-radius: 10px;
 }
 .store .pos .add-list::-webkit-scrollbar {
     display: none;
 }
-
-.store .pos .add-list .item{
-    padding: 6px 20px;
+.store .pos .add-list .item {
+    padding: 8px 20px;
+    border-top: 1px solid #2c2a2d;
 }
-.store .pos .add-list .item .name{
+.store .pos .add-list .item:nth-child(1) {
+    border-top: none;
+}
+.store .pos .add-list .item .name {
+    font-size: 16px;
+    color: #e2e2e2;
+}
+.store .pos .add-list .item .address {
+    font-size: 12px;
+    color: #e2e2e2;
+    margin-top: 4px;
+}
+
+.store .btns {
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.store .btns .btn {
+    padding: 16px;
+    font-size: 14px;
+    background-color: #555;
+    margin-left: 10px;
+    color: #2c2a2d;
+}
+
+.store .btns .btn.cancel {
+    background-color: transparent;
+    color: #e2e2e2;
+}
+.store .btns .btn.hover {
+    color: #e2e2e2;
+}
+
+.store .store-list {
+    flex: 1;
+    overflow-y: auto;
+}
+.store .store-list::-webkit-scrollbar {
+    display: none;
+}
+
+.store .store-list .item {
+    flex-direction: row;
+    align-items: center;
+    border-top: 1px solid #333;
+    padding: 10px;
+    position: relative;
+}
+.store .store-list .item.hover {
+    background-color: #555;
+}
+.store .store-list .item:nth-child(1) {
+    border-top: none;
+}
+
+.store .store-list .item .tip {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    z-index: 1;
+    width: 80px;
+    padding: 4px 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #e2e2e2;
+    font-size: 12px;
+    text-align: center;
+}
+
+.store .store-list .item img {
+    width: 80px;
+    height: 60px;
+    flex-shrink: 0;
+}
+
+.store .store-list .item .right {
+    height: 56px;
+    justify-content: space-between;
+    flex: 1;
+    margin-left: 8px;
+    width: 1px;
+}
+
+.store .store-list .item .name {
     font-size: 14px;
     color: #e2e2e2;
 }
-.store .pos .add-list .item .address{
+.store .store-list .item .address {
     font-size: 12px;
     color: #e2e2e2;
 }

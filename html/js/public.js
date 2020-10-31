@@ -16,6 +16,11 @@
         data: type === 'json' && method === 'POST' ? JSON.stringify(data) : data,
         dataType: 'json',
         contentType: type === 'json' ? 'application/json' : 'application/x-www-form-urlencoded',
+        headers: {
+          source: 'applet',
+          userKey: userInfo.key || '',
+          version: '1.10.18'
+        },
         success: res => {
           if (res.rspCode === 'success') {
             resolve(res.data)
@@ -646,6 +651,110 @@
             }
           })
         })
+      },
+      async getStorePos(list) {
+        const geo = address => {
+          return new Promise((resolve, reject) => {
+            $.ajax({
+              url: 'https://restapi.amap.com/v3/geocode/geo',
+              data: {
+                key: 'f95345d044311f2e0c05db35906ffbf1',
+                address,
+                city: '长沙',
+                batch: true
+              },
+              dataType: 'json',
+              success: res => {
+                if (res.status === '1') {
+                  resolve(res.geocodes.map(item => {
+                    return (typeof item.location === 'string' ? item.location : '0,0').split(',').map(item => Number(item))
+                  }))
+                } else {
+                  reject({ message: res.info })
+                }
+              },
+              error: err => {
+                reject(err)
+              }
+            })
+          })
+        }
+        const arr = []
+        for (let i = 0, l = Math.ceil(list.length / 10); i < l; i++) {
+          arr.push(geo(list.slice(i * 10, (i + 1) * 10).map(item => item.detailAddress).join('|')))
+        }
+        const poss = await Promise.all(arr)
+        for (let i = 0, l = poss.length; i < l; i++) {
+          const element = poss[i]
+          for (let j = 0, jl = element.length; j < jl; j++) {
+            list[i * 10 + j].mapX = element[j][0]
+            list[i * 10 + j].mapY = element[j][1]
+          }
+        }
+        return list
+      },
+      async getPosStore(data) {
+        const list = await ajax({
+          url: 'mall-store/store/getNearStoreList',
+          demain: 'mall-store.xsyxsc.com',
+          type: 'form',
+          data: {
+            mapX: data.lng,
+            mapY: data.lat
+          }
+        })
+        await this.getStorePos(list)
+        return list
+      },
+      async getKeywordStore(data) {
+        const list = await ajax({
+          url: 'mall-store/store/queryStoreList',
+          demain: 'mall-store.xsyxsc.com',
+          data: {
+            storeName: data.keyword
+          }
+        })
+        await this.getStorePos(list)
+        return list
+      },
+      async getUserStore() {
+        const list = await ajax({
+          url: 'api/member/user/getStoreUserPickUpList',
+          demain: 'user.xsyxsc.com',
+          method: 'POST',
+          type: 'form',
+          data: {
+            pageNum: 1,
+            pageSize: 10
+          }
+        })
+        // 过滤不正常店铺
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].storeStatus !== 'NORMAL') {
+            list.splice(i, 1)
+            i--
+          }
+        }
+        list.unshift(window.userInfo.storeInfo)
+        await this.getStorePos(list)
+        return list
+      },
+      async editStore(data) {
+        try {
+          await ajax({
+            url: 'api/member/user/updateCurrStoreId',
+            demain: 'user.xsyxsc.com',
+            method: 'POST',
+            type: 'form',
+            data: {
+              newStoreId: data.id
+            }
+          })
+          return true
+        } catch (error) {
+          toast(error.message)
+          throw error
+        }
       }
     }
   }

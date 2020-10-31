@@ -117,9 +117,9 @@
     <div class="footer">
       <div class="user">
         <div class="info">
-          <img v-if="storeInfo.logoUrl" class="img" :src="storeInfo.logoUrl" alt="">
+          <img v-if="storeInfo.storePhoto" class="img" :src="storeInfo.storePhoto" alt="">
           <div class="right">
-            <span class="name">{{storeInfo.storeName}}<span :click="storeShow = true">[更换]</span></span>
+            <span class="name">{{storeInfo.storeName}}<span @click="editStore">[更换]</span></span>
             <span class="tel">{{storeInfo.detailAddress}}</span>
           </div>
         </div>
@@ -129,7 +129,7 @@
         </div>
       </div>
     </div>
-    <store></store>
+    <store ref="store"></store>
     <login v-if="showLogin" @input="loginInput"></login>
     <div class="update" v-if="updateInfo.show">
       <div class="title">更新提示</div>

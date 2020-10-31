@@ -245,70 +245,225 @@ const vueComponents = {
   },
   // 门店
   'store': {
+    components: {
+      'store-list': {
+        props: ['data'],
+        template: `
+          <div class="store-list">
+            <div class="item" v-for="(item, index) in data.list" :class="{hover: data.listSelect === index}" @click="data.onSelect(index)">
+              <div v-if="item.storeId === userInfo.storeInfo.storeId" class="tip">当前门店</div>
+              <img :src="item.storePhoto" />
+              <div class="right">
+                <div class="name number-of-lines">{{item.storeName}}</div>
+                <div class="address number-of-lines--2">{{item.detailAddress}}</div>
+              </div>
+            </div>
+          </div>
+        `
+      }
+    },
     data() {
       return {
+        show: false,
         list: [],
         nav: [
-          { name: '位置搜索', list: [], key: '' },
-          { name: '门店搜索', list: [], key: '' },
-          { name: '我的门店', list: [] }
+          {
+            name: '位置搜索', list: [], key: '', listSelect: 0, onSelect: (index) => {
+              this.nav[0].listSelect = index
+              this.moveMapToStore(this.nav[0].list[index])
+            }
+          },
+          {
+            name: '门店搜索', list: [], key: '', listSelect: 0, onSelect: (index) => {
+              this.nav[1].listSelect = index
+              this.moveMapToStore(this.nav[1].list[index])
+            }
+          },
+          {
+            name: '我的门店', list: [], listSelect: 0, onSelect: (index) => {
+              this.nav[2].listSelect = index
+              this.moveMapToStore(this.nav[2].list[index])
+            }
+          }
         ],
         navHover: 0,
         addList: [], // 关键词检索的地址列表
       }
     },
     template: `
-        <div class="store-root">
-          <div class="store">
-            <div id="amap"></div>
-            <div class="right">
-              <div class="nav">
-                <div v-for="(item, index) in nav" class="item" :class="{hover: navHover === index}" @click="navHover = index">{{item.name}}</div>
-              </div>
-              <div class="content pos" v-if="navHover === 0">
-                <input placeholder="请输入收货地址" @input="addSearch" />
-                <div v-if="addList.length > 0" class="add-list">
-                  <div class="item" v-for="item in addList">
-                    <div class="name">{{item.name}}</div>
-                    <div class="address">{{item.address}}</div>
-                  </div>
+      <div v-if="show" class="store-root">
+        <div class="store">
+          <div id="amap"></div>
+          <svg v-if="navHover === 0" t="1604147570004" class="position" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10416" width="64" height="64"><path d="M496 336h32v688h-32z" fill="#999" p-id="10417"></path><path d="M512 312m-312 0a312 312 0 1 0 624 0 312 312 0 1 0-624 0Z" fill="#999" p-id="10418"></path><path d="M512 320m-120 0a120 120 0 1 0 240 0 120 120 0 1 0-240 0Z" fill="#2e2e2e" p-id="10419"></path></svg>
+          <div class="right" @click="closeAddList">
+            <div class="nav">
+              <div v-for="(item, index) in nav" class="item" :class="{hover: navHover === index}" @click="switchNav(index)">{{item.name}}</div>
+            </div>
+            <div class="content pos" v-if="navHover === 0">
+              <input placeholder="请输入收货地址" @input="addSearch" :value="nav[0].key" />
+              <div v-if="addList.length > 0" class="add-list">
+                <div class="item" v-for="item in addList" @click="moveMap(item.location)">
+                  <div class="name">{{item.name}}</div>
+                  <div class="address">{{item.address}}</div>
                 </div>
               </div>
-              <div class="content name" v-if="navHover === 1">
-                <input placeholder="请输入门店名称" />
-              </div>
-              <div class="content my" v-if="navHover === 2">
-              
-              </div>
+              <store-list :data="nav[0]"></store-list>
+            </div>
+            <div class="content name" v-if="navHover === 1">
+              <input placeholder="请输入门店名称" @input="storeSearch" :value="nav[1].key" />
+              <store-list :data="nav[1]"></store-list>
+            </div>
+            <div class="content my" v-if="navHover === 2">
+              <store-list :data="nav[2]"></store-list>
+            </div>
+            <div class="btns">
+              <div class="btn cancel" @click="cancel">取消</div>
+              <div class="btn" @click="submit" :class="{hover: nav[navHover].list[nav[navHover].listSelect]}">确定选择</div>
             </div>
           </div>
         </div>
-      `,
+      </div>
+    `,
     mounted() {
-      this.init()
+      // this.init()
     },
     methods: {
-      init() {
-        this.map = new AMap.Map('amap', {
-          zoom: 16,
-          mapStyle: 'amap://styles/grey', //设置地图的显示样式
+      select() {
+        this.show = true
+        this.$nextTick(() => {
+          this.init()
+        })
+        return new Promise((resolve, reject) => {
+          this.returnFunc = [resolve, reject]
         })
       },
+      init() {
+        this.map = new AMap.Map('amap', {
+          zoom: 17,
+          mapStyle: 'amap://styles/grey', //设置地图的显示样式
+        })
+        this.map.on('moveend', e => {
+          this.getPosStore()
+        })
+      },
+      // 取消选择
+      cancel() {
+        this.map.destroy()
+        this.show = false
+        this.returnFunc[1] && this.returnFunc[1]()
+      },
+      async submit() {
+        const store = this.nav[this.navHover].list[this.nav[this.navHover].listSelect]
+        if(!store){
+          return
+        }
+        if(store.storeId === userInfo.storeInfo.storeId){
+          this.returnFunc[0] && this.returnFunc[0](store)
+        }
+        await request({
+          url: 'index/editStore',
+          data: {
+            id: store.storeId
+          }
+        })
+        this.map.destroy()
+        this.show = false
+        this.returnFunc[0] && this.returnFunc[0](store)
+      },
+      // 导航切换
+      switchNav(index) {
+        this.navHover = index
+        if (index === 2) {
+          this.myStore()
+        } else {
+          this.markStoreMap()
+          this.moveMapToStore(this.nav[index].list[this.nav[index].listSelect])
+        }
+      },
+      // 地址搜索
       async addSearch(e) {
+        this.nav[0].key = e.target.value
         this.addList = await searchQuick({
           url: 'index/amapGeo',
           data: {
             keyword: e.target.value
           }
         })
-        console.log(this.addList)
       },
-      async getList() {
-        this.loading = true
-        // this.list = await request({
-        //   url: 'index/orderList'
-        // })
-        // this.loading = false
+      // 关闭地址列表
+      closeAddList() {
+        this.addList = []
+      },
+      // 移动地图到指定位置
+      moveMap(position) {
+        this.map.setCenter(position.split(',').map(item => Number(item)))
+      },
+      // 根据地图中心点获取门店列表
+      async getPosStore() {
+        if (this.navHover !== 0) {
+          return
+        }
+        if (this.moveType === 'not-get') {
+          this.moveType = ''
+          return
+        }
+        this.nav[0].list = await request({
+          url: 'index/getPosStore',
+          data: this.map.getCenter()
+        })
+        this.nav[0].listSelect = this.nav[0].list.length > 0 ? 0 : -1
+        this.markStoreMap()
+      },
+      // 关键词搜索门店
+      async storeSearch(e) {
+        this.nav[1].key = e.target.value
+        this.nav[1].list = await searchQuick({
+          url: 'index/getKeywordStore',
+          data: {
+            keyword: e.target.value
+          }
+        })
+        this.nav[1].listSelect = this.nav[1].list.length > 0 ? 0 : -1
+        this.markStoreMap()
+        this.moveMapToStore(this.nav[1].list[0])
+      },
+      // 我的门店
+      async myStore() {
+        if (this.nav[2].list.length === 0) {
+          this.nav[2].list = await request({
+            url: 'index/getUserStore'
+          })
+          this.nav[2].listSelect = this.nav[2].list.length > 0 ? 0 : -1
+        }
+        this.markStoreMap()
+        this.moveMapToStore(this.nav[2].list[this.nav[2].listSelect])
+      },
+      moveMapToStore(store) {
+        if (!store) {
+          return
+        }
+        this.moveType = 'not-get'
+        this.map.setCenter([store.mapX, store.mapY])
+      },
+      // 将点标记在地图上
+      markStoreMap() {
+        if (this.markers) {
+          this.map.remove(this.markers)
+        }
+        const list = this.nav[this.navHover].list
+        const icon = new AMap.Icon({
+          size: new AMap.Size(36, 36),    // 图标尺寸
+          image: './image/store.png',  // Icon的图像
+          imageOffset: new AMap.Pixel(0, 0),  // 图像相对展示区域的偏移量，适于雪碧图等
+          imageSize: new AMap.Size(36, 36)   // 根据所设置的大小拉伸或压缩图片
+        })
+        this.markers = list.map(item => new AMap.Marker({
+          position: [item.mapX, item.mapY],
+          title: item.storeName,
+          offset: new AMap.Pixel(-18, -36),
+          icon,
+        }))
+        this.map.add(this.markers)
       }
     }
   },
