@@ -10,6 +10,7 @@ function createWindow() {
     width: 1000,
     height: 1000,
     resizable: false, //禁止改变主窗口尺寸
+    backgroundColor: '#404040',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true
