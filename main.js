@@ -4,17 +4,19 @@ const path = require('path')
 
 function createWindow() {
   // 禁用菜单
-  // Menu.setApplicationMenu(null)
+  Menu.setApplicationMenu(null)
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1000,
     height: 1000,
-    // resizable: false, //禁止改变主窗口尺寸
+    resizable: false, //禁止改变主窗口尺寸
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true
     }
   })
+  // 隐藏mac菜单
+  // app.dock.hide()
 
   // and load the index.html of the app.
   mainWindow.loadFile('html/index.html')

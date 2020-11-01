@@ -265,10 +265,12 @@ const vueComponents = {
     data() {
       return {
         show: false,
+        cssShow: false,
         nav: [
           {
             name: '位置搜索', list: [], key: '', listSelect: 0, onSelect: (index) => {
               this.nav[0].listSelect = index
+              this.moveType = 'not-get'
               this.moveMapToStore(this.nav[0].list[index])
             }
           },
@@ -297,7 +299,7 @@ const vueComponents = {
     },
     template: `
       <div v-if="show" class="store-root">
-        <div class="store" @click="closePop">
+        <div class="store" :class="{show: cssShow}" @click="closePop">
           <div id="amap"></div>
           <div v-if="navHover === 0" class="city" @click="stopPropagation">
             <div class="name">{{city}} <span @click="getCity">[切换]</span></div>
@@ -357,6 +359,7 @@ const vueComponents = {
         })
       },
       init() {
+        this.cssShow = true
         this.map = new AMap.Map('amap', {
           zoom: 17,
           mapStyle: 'amap://styles/grey', //设置地图的显示样式
@@ -385,7 +388,8 @@ const vueComponents = {
       // 取消选择
       cancel() {
         this.map.destroy()
-        this.show = false
+        this.cssShow = false
+        setTimeout(() => this.show = false, 300)
         this.navHover = 0
         this.returnFunc[1] && this.returnFunc[1]()
       },
@@ -405,7 +409,8 @@ const vueComponents = {
           }
         })
         this.map.destroy()
-        this.show = false
+        this.cssShow = false
+        setTimeout(() => this.show = false, 300)
         this.navHover = 0
         this.returnFunc[0] && this.returnFunc[0](store)
       },
@@ -495,7 +500,6 @@ const vueComponents = {
         })
         this.nav[1].listSelect = this.nav[1].list.length > 0 ? 0 : -1
         this.markStoreMap()
-        this.moveType = 'not-get'
         this.moveMapToStore(this.nav[1].list[0])
       },
       // 我的门店

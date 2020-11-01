@@ -2,6 +2,9 @@
     margin: 0;
     padding: 0;
 }
+[v-cloak] {
+    display: none;
+}
 
 div {
     display: flex;
@@ -880,7 +883,6 @@ input:focus {
     right: 0;
     bottom: 0;
     z-index: 1;
-    background-color: rgba(0, 0, 0, 0.5);
     align-items: center;
 }
 
@@ -891,6 +893,13 @@ input:focus {
     flex-direction: row;
     align-items: stretch;
     position: relative;
+    box-shadow: 0px 0px 10px #000;
+    transition: transform 0.3s ease-in-out;
+    transform: translateY(-600px);
+}
+
+.store.show {
+    transform: translateY(0);
 }
 
 .store #amap {

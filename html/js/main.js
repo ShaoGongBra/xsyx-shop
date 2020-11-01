@@ -47,6 +47,9 @@ const app = new Vue({
   methods: {
     async init() {
       await this.login()
+      this.reload()
+    },
+    async reload() {
       this.cates = await request({
         url: 'index/cates'
       })
@@ -139,13 +142,14 @@ const app = new Vue({
     },
     async search(e) {
       const keyWord = e.target.value
+      this.malls.splice(0, this.malls.length)
+      this.selectCate = -1
       this.malls = await searchQuick({
         url: 'index/search',
         data: {
           keyWord
         }
       })
-      this.selectCate = -1
     },
     userShow(type, status, e) {
       if (status) {
@@ -365,6 +369,7 @@ const app = new Vue({
       this.$refs.store.select().then(store => {
         this.storeInfo = store
         window.userInfo.storeInfo = store
+        this.reload()
       })
     }
   }
