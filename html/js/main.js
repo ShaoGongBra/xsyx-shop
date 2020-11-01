@@ -203,6 +203,7 @@ const app = new Vue({
       this.contentRoutre = 'goods-detail'
     },
     addCart(mall, type = 'add', e) {
+      const { ipcRenderer } = require('electron')
       e && (e.stopPropagation(), this.contentRoutre = 'cart')
       if (mall.limitQty === mall.number.daySaleQty && mall.limitQty !== 0) {
         toast('已售完')
@@ -220,17 +221,21 @@ const app = new Vue({
           powerID: null
         }
         if (time > (new Date()).getTime()) {
-          const { powerSaveBlocker } = require('electron')
           item.timer = new countDown()
           item.timer.onTime(text => item.timeText = text)
           item.timer.onStop(() => {
             item.timer = null
             this.submit()
-            powerSaveBlocker.stop(item.powerID)
+            ipcRenderer.send('del-power-save-blocker', item.powerID)
+            ipcRenderer.removeListener('add-power-save-blocker-reply', item.powerCallBack)
           })
           item.timer.start(time - 10, 'H时M分S秒', true)
           // 阻止进入省电模式
-          item.powerID = powerSaveBlocker.start('prevent-app-suspension')
+          item.powerCallBack = (event, res) => {
+            item.powerID = res
+          }
+          ipcRenderer.send('add-power-save-blocker', 'prevent-app-suspension')
+          ipcRenderer.on('add-power-save-blocker-reply', item.powerCallBack)
         }
         this.cart.push(item)
         this.cart.sort((a, b) => a.timeStamp - b.timeStamp)
@@ -256,6 +261,7 @@ const app = new Vue({
           if (cartItem.list.length === 0) {
             const [item] = this.cart.splice(cartIndex, 1)
             item.timer && item.timer.stop()
+            item.powerCallBack && ipcRenderer.removeListener('add-power-save-blocker-reply', item.powerCallBack)
           }
           this.cartTotal()
           return

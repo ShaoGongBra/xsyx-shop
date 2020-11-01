@@ -265,7 +265,6 @@ const vueComponents = {
     data() {
       return {
         show: false,
-        list: [],
         nav: [
           {
             name: '位置搜索', list: [], key: '', listSelect: 0, onSelect: (index) => {
@@ -288,12 +287,32 @@ const vueComponents = {
         ],
         navHover: 0,
         addList: [], // 关键词检索的地址列表
+        city: '', // 当前城市
+        locationCity: '', // 自动定位获取的城市
+        cityList: [], // 系统系统的城市列表
+        cityShow: false,
+        cityKeyword: '', //搜索关键词
+        cityPid: 0, // 筛选省份
       }
     },
     template: `
       <div v-if="show" class="store-root">
-        <div class="store">
+        <div class="store" @click="closePop">
           <div id="amap"></div>
+          <div v-if="navHover === 0" class="city" @click="stopPropagation">
+            <div class="name">{{city}} <span @click="getCity">[切换]</span></div>
+            <div v-if="cityShow" class="select">
+              <input placeholder="请输入城市" @input="citySearch" />
+              <div class="level-1">
+                <div class="item" :class="{hover: cityPid === 0}" @click="cityPid = 0">全部</div>
+                <div class="item" v-for="item in filterCity(1)" :class="{hover: cityPid === item.id}" @click="cityPid = item.id">{{item.name}}</div>
+              </div>
+              <div class="level-2">
+                <div class="item" v-for="item in filterCity(2)" @click="switchCity(item.name)">{{item.name}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="tips">提示：门店地图位置信息由地图自动识别生成，仅提供参考，请以实际位置为准！</div>
           <svg v-if="navHover === 0" t="1604147570004" class="position" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10416" width="64" height="64"><path d="M496 336h32v688h-32z" fill="#999" p-id="10417"></path><path d="M512 312m-312 0a312 312 0 1 0 624 0 312 312 0 1 0-624 0Z" fill="#999" p-id="10418"></path><path d="M512 320m-120 0a120 120 0 1 0 240 0 120 120 0 1 0-240 0Z" fill="#2e2e2e" p-id="10419"></path></svg>
           <div class="right" @click="closeAddList">
             <div class="nav">
@@ -345,19 +364,38 @@ const vueComponents = {
         this.map.on('moveend', e => {
           this.getPosStore()
         })
+        AMap.plugin('AMap.CitySearch', () => {
+          const citySearch = new AMap.CitySearch()
+          citySearch.getLocalCity((status, result) => {
+            if (status === 'complete' && result.info === 'OK') {
+              // 查询成功，result即为当前所在城市信息
+              this.city = result.city
+              this.locationCity = result.city
+            }
+          })
+        })
+      },
+      // 点击底层官博弹出框
+      closePop() {
+        this.cityShow = false
+      },
+      stopPropagation(e) {
+        e.stopPropagation()
       },
       // 取消选择
       cancel() {
         this.map.destroy()
         this.show = false
+        this.navHover = 0
         this.returnFunc[1] && this.returnFunc[1]()
       },
+      // 确定选择
       async submit() {
         const store = this.nav[this.navHover].list[this.nav[this.navHover].listSelect]
-        if(!store){
+        if (!store) {
           return
         }
-        if(store.storeId === userInfo.storeInfo.storeId){
+        if (store.storeId === userInfo.storeInfo.storeId) {
           this.returnFunc[0] && this.returnFunc[0](store)
         }
         await request({
@@ -368,7 +406,35 @@ const vueComponents = {
         })
         this.map.destroy()
         this.show = false
+        this.navHover = 0
         this.returnFunc[0] && this.returnFunc[0](store)
+      },
+      // 获取城市
+      async getCity() {
+        if (this.cityList.length === 0) {
+          this.cityList = await request({
+            url: 'index/getStoreCity'
+          })
+        }
+        this.cityShow = true
+      },
+      citySearch(e) {
+        this.cityKeyword = e.target.value
+      },
+      filterCity(level = 1) {
+        return this.cityList.filter(item => {
+          if (level === 1) {
+            return item.level === 1
+          } else {
+            return item.level === 2
+              && (!this.cityKeyword || item.name.indexOf(this.cityKeyword) !== -1)
+              && (!this.cityPid || item.parentId === this.cityPid)
+          }
+        })
+      },
+      switchCity(name) {
+        this.city = name
+        this.cityShow = false
       },
       // 导航切换
       switchNav(index) {
@@ -386,7 +452,8 @@ const vueComponents = {
         this.addList = await searchQuick({
           url: 'index/amapGeo',
           data: {
-            keyword: e.target.value
+            keyword: e.target.value,
+            city: this.city
           }
         })
       },
@@ -409,7 +476,10 @@ const vueComponents = {
         }
         this.nav[0].list = await request({
           url: 'index/getPosStore',
-          data: this.map.getCenter()
+          data: {
+            ...this.map.getCenter(),
+            city: this.city
+          }
         })
         this.nav[0].listSelect = this.nav[0].list.length > 0 ? 0 : -1
         this.markStoreMap()
@@ -425,6 +495,7 @@ const vueComponents = {
         })
         this.nav[1].listSelect = this.nav[1].list.length > 0 ? 0 : -1
         this.markStoreMap()
+        this.moveType = 'not-get'
         this.moveMapToStore(this.nav[1].list[0])
       },
       // 我的门店
@@ -442,7 +513,6 @@ const vueComponents = {
         if (!store) {
           return
         }
-        this.moveType = 'not-get'
         this.map.setCenter([store.mapX, store.mapY])
       },
       // 将点标记在地图上

@@ -552,6 +552,10 @@ input:focus {
     font-weight: bold;
 }
 
+.footer .user .info .name span {
+    color: #7b8390;
+    margin-left: 10px;
+}
 .footer .user .info .tel {
     color: #eee;
     font-size: 14px;
@@ -894,6 +898,88 @@ input:focus {
     height: 600px;
     background-color: rgb(26, 35, 44);
     flex-shrink: 0;
+}
+.store .city {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    align-items: flex-start;
+    z-index: 1;
+}
+.store .city .name {
+    background-color: #2c2a2d;
+    padding: 0 12px;
+    align-items: center;
+    color: #e2e2e2;
+    height: 28px;
+    font-size: 14px;
+    border-radius: 14px;
+    flex-direction: row;
+}
+.store .city .name span {
+    color: #7b8390;
+    margin-left: 5px;
+}
+.store .city .select {
+    margin-top: 6px;
+    background-color: #2c2a2d;
+    width: 254px;
+    max-height: 480px;
+}
+.store .city .select input {
+    width: calc(100% - 32px);
+    border-radius: 20px;
+    background-color: #555;
+    border: none;
+    height: 28px;
+    padding: 0 20px;
+    color: #e2e2e2;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    margin: 10px 16px 0 16px;
+}
+.store .city .select .level-1 {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 4px 16px 10px 16px;
+}
+.store .city .select .level-1 .item {
+    padding: 4px 6px;
+    font-size: 12px;
+    border: 1px solid#e2e2e2;
+    color: #e2e2e2;
+    margin-top: 6px;
+    margin-right: 6px;
+}
+.store .city .select .level-1 .item.hover {
+    background-color: #e2e2e2;
+    color: #2c2a2d;
+}
+.store .city .select .level-2 {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #353434;
+    padding: 0 16px;
+}
+.store .city .select .level-2 .item {
+    padding: 8px 0;
+    font-size: 14px;
+    color: #e2e2e2;
+}
+.store .city .select .level-2::-webkit-scrollbar {
+    display: none;
+}
+.store .tips {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 999;
+    width: 500px;
+    padding: 4px 10px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #e2e2e2;
+    font-size: 12px;
 }
 .store .position {
     position: absolute;

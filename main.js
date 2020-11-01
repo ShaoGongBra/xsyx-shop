@@ -1,8 +1,8 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, Menu} = require('electron')
+const { app, BrowserWindow, Menu, ipcMain, powerSaveBlocker } = require('electron')
 const path = require('path')
 
-function createWindow () {
+function createWindow() {
   // 禁用菜单
   // Menu.setApplicationMenu(null)
   // Create the browser window.
@@ -44,3 +44,11 @@ app.on('window-all-closed', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+ipcMain.on('add-power-save-blocker', (event, arg) => {
+  event.sender.send('add-power-save-blocker-reply', powerSaveBlocker.start(arg))
+})
+
+ipcMain.on('del-power-save-blocker', (event, arg) => {
+  powerSaveBlocker.stop(arg)
+})

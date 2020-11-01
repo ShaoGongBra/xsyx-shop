@@ -636,7 +636,7 @@
             data: {
               key: 'f95345d044311f2e0c05db35906ffbf1',
               keywords: data.keyword,
-              city: '长沙'
+              city: data.city
             },
             dataType: 'json',
             success: res => {
@@ -652,7 +652,7 @@
           })
         })
       },
-      async getStorePos(list) {
+      async getStorePos(list, city = '') {
         const geo = address => {
           return new Promise((resolve, reject) => {
             $.ajax({
@@ -660,7 +660,7 @@
               data: {
                 key: 'f95345d044311f2e0c05db35906ffbf1',
                 address,
-                city: '长沙',
+                city,
                 batch: true
               },
               dataType: 'json',
@@ -681,7 +681,7 @@
         }
         const arr = []
         for (let i = 0, l = Math.ceil(list.length / 10); i < l; i++) {
-          arr.push(geo(list.slice(i * 10, (i + 1) * 10).map(item => item.detailAddress).join('|')))
+          arr.push(geo(list.slice(i * 10, (i + 1) * 10).map(item => item.mapAddress || item.detailAddress).join('|')))
         }
         const poss = await Promise.all(arr)
         for (let i = 0, l = poss.length; i < l; i++) {
@@ -703,7 +703,7 @@
             mapY: data.lat
           }
         })
-        await this.getStorePos(list)
+        await this.getStorePos(list, data.city)
         return list
       },
       async getKeywordStore(data) {
@@ -755,6 +755,25 @@
           toast(error.message)
           throw error
         }
+      },
+      async getStoreCity() {
+        const list = await ajax({
+          url: 'mall-store/getOpenStoreCitys',
+          demain: 'mall-store.xsyxsc.com'
+        })
+        const texts = ['省', '壮族自治区', '市']
+        const replaceText = text => {
+          for (let i = 0; i < texts.length; i++) {
+            text = text.replace(texts[i], '')
+          }
+          return text
+        }
+        return list.map(item => ({
+          name: item.level === 1 ? replaceText(item.orgAreaName) : item.orgAreaName,
+          id: item.orgAreaId,
+          level: item.level,
+          parentId: item.parentId
+        }))
       }
     }
   }
