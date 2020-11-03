@@ -5,8 +5,8 @@
       const { storeInfo = {} } = userInfo
       method = method.toUpperCase()
       data = {
-        areaId: storeInfo.areaId || 101,
-        storeId: storeInfo.storeId || 66880000022074,
+        areaId: storeInfo.areaId,
+        storeId: storeInfo.storeId,
         userKey: userInfo.key || '',
         ...data
       }
@@ -215,6 +215,26 @@
         })
       }, 600)
     })
+  }
+
+  that.getSetting = () => {
+    let setting = localStorage.getItem("setting")
+    if (setting !== null) {
+      try {
+        setting = JSON.parse(setting)
+      } catch (error) {
+        setting = {}
+        // 将用户信息的昵称和姓名更新到设置
+        setting.name = window.userInfo.nickName
+        setting.tel = window.userInfo.mobileNo
+      }
+    } else {
+      setting = {}
+      // 将用户信息的昵称和姓名更新到设置
+      setting.name = window.userInfo.nickName
+      setting.tel = window.userInfo.mobileNo
+    }
+    return setting
   }
 
   /**
@@ -553,12 +573,12 @@
               type: 'form',
               data: {
                 order: JSON.stringify({
-                  ai: data.areaId || 101,
+                  ai: data.areaId,
                   ct: 'MINI_PROGRAM',
                   ot: 'CHOICE',
                   p: data.tel,
                   r: data.name,
-                  si: data.storeId || 66880000022074,
+                  si: data.storeId,
                   ess: data.eskuSn,
                   itemList: items
                 })

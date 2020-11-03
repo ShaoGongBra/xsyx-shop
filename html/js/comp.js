@@ -181,7 +181,6 @@ const vueComponents = {
     },
     template: `
         <div class="order">
-          <div class="close" @click="$emit('close')">关闭</div>
           <div class="scroll">
             <div class="group">
               <div class="tip">待支付</div>
@@ -243,8 +242,71 @@ const vueComponents = {
       }
     }
   },
+  // 设置
+  setting: {
+    data() {
+      return {
+        setting: window.getSetting()
+      }
+    },
+    template: `
+      <div class="setting">
+        <div class="scroll">
+          <div class="group">
+            <div class="title">提货人信息</div>
+            <div class="item">
+              <div class="name">姓名</div>
+              <input class="value" :value="setting.name" @change="input('name', $event)" placeholder="提货人姓名" />
+            </div>
+            <div class="item">
+              <div class="name">电话</div>
+              <input class="value" :value="setting.tel" maxlength="11" @change="input('tel', $event)" placeholder="提货人电话" />
+            </div>
+          </div>
+        </div>
+      </div>
+    `,
+    methods: {
+      input(key, e) {
+        this.setting[key] = e.target.value
+        if (key === 'name' && e.target.value !== '') {
+          this.save()
+        }
+        if (key === 'tel' && e.target.value.length === 11) {
+          this.save()
+        }
+      },
+      save() {
+        localStorage.setItem('setting', JSON.stringify(this.setting))
+      }
+    }
+  },
+  // 关于
+  about: {
+    data() {
+      return {
+        version: require("../package.json").version
+      }
+    },
+    template: `
+      <div class="about">
+        <div class="name">兴盛优选PC端购物</div>
+        <p class="version">v{{version}}  <span class="link" @click="open">GitHub</span></p>
+        <p class="part">&nbsp;&nbsp;&nbsp;&nbsp;为了方便使用特地开发了一个用electron开发的兴盛优选的PC端，编译后可运行在Windows和MacOS以及Linux系统上。本软件完全免费开源，请前往<span class="link" @click="open">GitHub</span>获取相关代码和发布版本。</p>
+      </div>
+    `,
+    methods: {
+      nav(url) {
+        const { shell } = require('electron')
+        shell.openExternal(url)
+      },
+      open() {
+        this.nav('https://github.com/ShaoGongBra/xsyx-shop')
+      }
+    }
+  },
   // 门店
-  'store': {
+  store: {
     components: {
       'store-list': {
         props: ['data'],

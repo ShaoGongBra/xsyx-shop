@@ -8,9 +8,10 @@ function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1000,
-    height: 1000,
+    height: 800,
     resizable: false, //禁止改变主窗口尺寸
     backgroundColor: '#404040',
+    // frame: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true

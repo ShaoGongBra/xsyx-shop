@@ -53,24 +53,16 @@ input:focus {
 }
 
 .header {
-    padding: 10px 20px;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    background-color: #404040;
+    background-color: #2a2c30;
 }
 
-.header .left,
-.header .right {
-    width: 300px;
+.header .left {
+    flex-direction: row;
+    align-items: center;
 }
-
-.header .left span {
-    font-size: 18px;
-    font-weight: bold;
-    color: #eee;
-}
-
 .header .right {
     flex-direction: row;
     align-items: center;
@@ -78,17 +70,24 @@ input:focus {
 }
 
 .header .menu {
-    color: #eee;
-    padding: 4px 10px;
+    color: #999;
+    padding: 16px 20px;
     font-size: 14px;
     font-weight: bold;
+    border-bottom: 2px solid transparent;
+}
+
+.header .menu.hover {
+    border-bottom: 2px solid #eee;
+    color: #eee;
 }
 
 .header .user {
     position: relative;
     width: 30px;
     height: 30px;
-    margin-left: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .header .user .img {
@@ -149,6 +148,7 @@ input:focus {
     overflow: hidden;
     align-items: stretch;
     background-color: #404040;
+    padding: 10px 0;
 }
 
 .cates {
@@ -1148,4 +1148,87 @@ input:focus {
 .store .store-list .item .address {
     font-size: 12px;
     color: #e2e2e2;
+}
+
+.setting {
+    width: 450px;
+    height: 100%;
+    position: relative;
+    padding: 0 10px;
+}
+.setting .scroll {
+    display: unset;
+    overflow-y: auto;
+}
+
+.setting .scroll::-webkit-scrollbar {
+    display: none;
+}
+.setting .group {
+    background-color: #2c2a2d;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 15px;
+}
+.setting .group .title {
+    padding: 10px 15px;
+    background-color: #1d1d1d;
+    color: #e2e2e2;
+}
+.setting .group .item {
+    flex-direction: row;
+    align-items: center;
+    margin: 0 15px;
+    padding: 10px 0;
+}
+.setting .group .item .name {
+    font-size: 14px;
+    color: #e2e2e2;
+    width: 60px;
+}
+.setting .group .item .value {
+    width: 1px;
+    flex: 1;
+    background-color: #555;
+    padding: 8px 10px;
+    border: none;
+    color: #e2e2e2;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.about {
+    width: 430px;
+    margin: 0 10px;
+    padding: 50px 10px;
+    background-color: #2c2a2d;
+    border-radius: 10px;
+    color: #e2e2e2;
+}
+.about .scroll {
+    display: unset;
+    overflow-y: auto;
+}
+
+.about .scroll::-webkit-scrollbar {
+    display: none;
+}
+.about .name {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+.about .version {
+    font-size: 14px;
+    text-align: center;
+    margin-top: 8px;
+    margin-bottom: 50px;
+}
+.about .part {
+    font-size: 12px;
+    line-height: 2;
+}
+.link {
+    color: #7b8390;
+    cursor: pointer;
 }

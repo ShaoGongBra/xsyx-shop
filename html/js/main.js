@@ -5,6 +5,12 @@ const app = new Vue({
   components: vueComponents,
   data: {
     showLogin: false,
+    menus: [
+      { text: '兴盛优选购物', value: 'cart' },
+      { text: '订单', value: 'order' },
+      { text: '设置', value: 'setting' },
+      { text: '关于', value: 'about' }
+    ],
     cates: [],
     selectCate: 0,
     malls: [],
@@ -20,13 +26,13 @@ const app = new Vue({
         title: '限购',
         name: 'limit',
         value: 0,
-        list: [{ name: '商品限购 全部', value: 0 }, { name: '1件', value: 1 }, { name: '2件', value: 2 }, { name: '10件', value: 10 }]
+        list: [{ name: '限购', value: 0 }, { name: '1件', value: 1 }, { name: '2件', value: 2 }, { name: '10件', value: 10 }]
       },
       {
         title: '时间',
         name: 'time',
         value: 'all',
-        list: [{ name: '全部时间', value: 'all' }, { name: '0点', value: '00:00' }, { name: '10点', value: '10:00' }]
+        list: [{ name: '时间', value: 'all' }, { name: '0点', value: '00:00' }, { name: '10点', value: '10:00' }]
       }
     ],
     // 版本更新
@@ -46,6 +52,7 @@ const app = new Vue({
   },
   methods: {
     async init() {
+      
       await this.login()
       this.reload()
     },
@@ -318,13 +325,14 @@ const app = new Vue({
         toast('没有要提交的商品')
         return
       }
+      const setting = window.getSetting()
       this.submitStatus = true
       request({
         url: 'index/submit',
         type: 'POST',
         data: {
-          tel: this.userInfo.mobileNo,
-          name: this.userInfo.nickName,
+          tel: setting.tel,
+          name: setting.name,
           areaId: this.storeInfo.areaId,
           storeId: this.storeInfo.storeId,
           itemList

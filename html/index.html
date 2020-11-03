@@ -26,12 +26,10 @@
   <div id="app" v-cloak>
     <div class="header">
       <div class="left">
-        <span>兴盛优选购物</span>
+        <div class="menu" v-for="item in menus" :class="{hover: item.value === contentRoutre || (item.value === 'cart' && !menus.map(item => item.value).includes(contentRoutre))}" @click="contentRoutre = item.value">{{item.text}}</div>
       </div>
-      <input type="text" placeholder="请输入关键词搜索商品" @input="search">
       <div class="right">
-        <div class="menu" @click="nav('https://github.com/ShaoGongBra/xsyx-shop')">关于(github)</div>
-        <div class="menu" @click="contentRoutre = 'order'">订单</div>
+        <input type="text" placeholder="请输入关键词搜索商品" @input="search">
         <div class="user">
           <img v-if="userInfo.headImgUrl" :src="userInfo.headImgUrl" class="img"
             @mouseover="userShow('head', true, $event)" @mouseout="userShow('head', false, $event)">
@@ -79,7 +77,9 @@
       <div class="content">
         <goods-detail v-if="contentRoutre === 'goods-detail'" :mall="selectMall" @close="contentRoutre = 'cart'">
         </goods-detail>
-        <order v-else-if="contentRoutre === 'order'" @close="contentRoutre = 'cart'"></order>
+        <order v-else-if="contentRoutre === 'order'"></order>
+        <setting v-else-if="contentRoutre === 'setting'"></setting>
+        <about v-else-if="contentRoutre === 'about'"></about>
         <div v-else class="cart">
           <div v-for="time in cart">
             <div class="head">
