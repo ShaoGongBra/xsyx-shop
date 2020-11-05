@@ -6,6 +6,9 @@
       method = method.toUpperCase()
       data = {
         areaId: storeInfo.areaId,
+        provinceCode: storeInfo.provinceId,
+        cityCode: storeInfo.cityId,
+        areaCode: storeInfo.countyId,
         storeId: storeInfo.storeId,
         userKey: userInfo.key || '',
         ...data
@@ -794,6 +797,19 @@
           level: item.level,
           parentId: item.parentId
         }))
+      },
+      async getCoupon() {
+        const list = await ajax({
+          url: 'ticket/queryMyTickets',
+          demain: 'marketing.xsyxsc.com',
+          data: {
+            queryStatus: 'UNUSED',
+            pageNo: 1,
+            pageSize: 30,
+            channelUse: 'WXAPP'
+          }
+        })
+        return list.records
       }
     }
   }

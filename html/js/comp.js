@@ -187,7 +187,7 @@ const vueComponents = {
               <div class="empty" v-if="list.pay.length === 0 && !loading">没有订单</div>
               <div class="item" v-for="item in list.pay" :key="item.orderId">
                 <div class="head">
-                  <div class="date">{{dateToStr('yyyy-MM-dd HH:mm:ss', item.orderDate)}}</div>
+                  <div class="date">{{dateToStr('MM-dd HH:mm', item.orderDate)}}</div>
                 </div>
                 <div class="goods" v-for="goods in item.itemList" :key="goods.productId">
                   <img :src="goods.thumbnailsUrl" />
@@ -206,8 +206,8 @@ const vueComponents = {
               <div class="empty" v-if="list.paid.length === 0 && !loading">没有订单</div>
               <div class="item" v-for="item in list.paid" :key="item.orderId">
                 <div class="head">
-                <div class="date">{{dateToStr('yyyy-MM-dd HH:mm:ss', item.orderDate)}}</div>
-                  <div class="code">提货码：{{item.billOfLading}}</div>
+                <div class="date">{{dateToStr('MM-dd HH:mm', item.orderDate)}}</div>
+                  <div class="code">{{item.billOfLading}}</div>
                 </div>
                 <div class="goods" v-for="goods in item.itemList" :key="goods.productId">
                   <img :src="goods.thumbnailsUrl" />
@@ -246,9 +246,11 @@ const vueComponents = {
   setting: {
     data() {
       return {
-        setting: window.getSetting()
+        setting: window.getSetting(),
+        storeInfo: window.userInfo.storeInfo
       }
     },
+    props: ['store-select'],
     template: `
       <div class="setting">
         <div class="scroll">
@@ -261,6 +263,16 @@ const vueComponents = {
             <div class="item">
               <div class="name">电话</div>
               <input class="value" :value="setting.tel" maxlength="11" @change="input('tel', $event)" placeholder="提货人电话" />
+            </div>
+            <div class="item">
+              <div class="name">门店</div>
+              <div class="store-info">
+                <img v-if="storeInfo.storePhoto" class="img" :src="storeInfo.storePhoto" alt="">
+                <div class="right">
+                  <span class="store-name">{{storeInfo.storeName}}<span @click="editStore">[更换]</span></span>
+                  <span class="tel">{{storeInfo.detailAddress}}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -278,6 +290,13 @@ const vueComponents = {
       },
       save() {
         localStorage.setItem('setting', JSON.stringify(this.setting))
+      },
+      editStore() {
+        this.storeSelect.select().then(store => {
+          this.storeInfo = store
+          window.userInfo.storeInfo = store
+          this.$emit('reload')
+        })
       }
     }
   },
@@ -303,6 +322,32 @@ const vueComponents = {
       open() {
         this.nav('https://github.com/ShaoGongBra/xsyx-shop')
       }
+    }
+  },
+  // 优惠券
+  coupon: {
+    data() {
+      return {
+
+      }
+    },
+    props: ['list'],
+    template: `
+      <div class="coupon-comp">
+        <div class="item" v-for="item in list" :key="item.ticketId">
+          <div class="left">
+            <div class="price">￥<span>{{item.amount}}</span></div>
+            <div class="limit">满{{item.orderAmountLimit}}可用</div>
+          </div>
+          <div class="right">
+            <div class="name">{{item.toolName}}</div>
+            <div class="time">{{item.tmActive.substr(0, 10)}} - {{item.tmExpire.substr(0, 10)}}</div>
+          </div>
+        </div>
+      </div>
+    `,
+    methods: {
+
     }
   },
   // 门店

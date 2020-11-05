@@ -26,7 +26,9 @@
   <div id="app" v-cloak>
     <div class="header">
       <div class="left">
-        <div class="menu" v-for="item in menus" :class="{hover: item.value === contentRoutre || (item.value === 'cart' && !menus.map(item => item.value).includes(contentRoutre))}" @click="contentRoutre = item.value">{{item.text}}</div>
+        <div class="menu" v-for="item in menus"
+          :class="{hover: item.value === contentRoutre || (item.value === 'cart' && !menus.map(item => item.value).includes(contentRoutre))}"
+          @click="contentRoutre = item.value">{{item.text}}<span v-if="item.num" class="num">{{item.num}}</span></div>
       </div>
       <div class="right">
         <input type="text" placeholder="请输入关键词搜索商品" @input="search">
@@ -78,55 +80,49 @@
         <goods-detail v-if="contentRoutre === 'goods-detail'" :mall="selectMall" @close="contentRoutre = 'cart'">
         </goods-detail>
         <order v-else-if="contentRoutre === 'order'"></order>
-        <setting v-else-if="contentRoutre === 'setting'"></setting>
+        <coupon v-else-if="contentRoutre === 'coupon'" :list="coupon"></coupon>
+        <setting v-else-if="contentRoutre === 'setting'" :store-select="$refs.store" @reload="reload"></setting>
         <about v-else-if="contentRoutre === 'about'"></about>
-        <div v-else class="cart">
-          <div v-for="time in cart">
-            <div class="head">
-              <span class="time">{{time.time.substr(5, 11)}}</span>
-              <span class="timer">{{time.timer === null ? '已开始' : time.timeText}}</span>
-            </div>
-            <div v-for="item in time.list" class="mall-item" @click="showMallDetail(item)">
-              <div class="ad-image">
-                <img :src="item.adUrl" alt="">
-                <div v-if="item.videoUrl" class="play-bg" @click="playVideo(item.videoUrl, $event)">
-                  <div class="play"></div>
+        <template v-else>
+          <div class="cart">
+            <div class="scroll">
+              <div v-for="time in cart">
+                <div class="head">
+                  <span class="time">{{time.time.substr(5, 11)}}</span>
+                  <span class="timer">{{time.timer === null ? '已开始' : time.timeText}}</span>
                 </div>
-              </div>
-              <div class="right">
-                <span class="title">{{item.prName}}</span>
-                <span class="num">{{item.tmBuyStart.substr(5, 11)}} - {{item.tmBuyEnd.substr(5, 11)}}</span>
-                <span
-                  class="num">{{item.number && item.number.daySaleQty}}/{{item.limitQty === 0 ? '不限制' : item.limitQty}}
-                  {{item.ulimitQty > 0 ? '每人限购:' + item.ulimitQty : ''}}</span>
-                <div class="bottom">
-                  <span class="price">￥{{item.saleAmt}}</span>
-                  <span class="price-old">￥{{item.marketAmt}}</span>
-                  <div class="action">
-                    <span class="btn" @click="addCart(item, 'reduce', $event)">减</span>
-                    <span class="num">{{item.qty}}</span>
-                    <span class="btn" @click="addCart(item, 'add', $event)">加</span>
+                <div v-for="item in time.list" class="mall-item" @click="showMallDetail(item)">
+                  <div class="ad-image">
+                    <img :src="item.adUrl" alt="">
+                    <div v-if="item.videoUrl" class="play-bg" @click="playVideo(item.videoUrl, $event)">
+                      <div class="play"></div>
+                    </div>
+                  </div>
+                  <div class="right">
+                    <span class="title">{{item.prName}}</span>
+                    <span class="num">{{item.tmBuyStart.substr(5, 11)}} - {{item.tmBuyEnd.substr(5, 11)}}</span>
+                    <span
+                      class="num">{{item.number && item.number.daySaleQty}}/{{item.limitQty === 0 ? '不限制' : item.limitQty}}
+                      {{item.ulimitQty > 0 ? '每人限购:' + item.ulimitQty : ''}}</span>
+                    <div class="bottom">
+                      <span class="price">￥{{item.saleAmt}}</span>
+                      <span class="price-old">￥{{item.marketAmt}}</span>
+                      <div class="action">
+                        <span class="btn" @click="addCart(item, 'reduce', $event)">减</span>
+                        <span class="num">{{item.qty}}</span>
+                        <span class="btn" @click="addCart(item, 'add', $event)">加</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-    <div class="footer">
-      <div class="user">
-        <div class="info">
-          <img v-if="storeInfo.storePhoto" class="img" :src="storeInfo.storePhoto" alt="">
-          <div class="right">
-            <span class="name">{{storeInfo.storeName}}<span @click="editStore">[更换自提点]</span></span>
-            <span class="tel">{{storeInfo.detailAddress}}</span>
+          <div class="cart-submit">
+            <div class="price">￥{{totalPrice.toFixed(2)}}</div>
+            <div class="btn" @click="submit">提交订单</div>
           </div>
-        </div>
-        <div class="setting">
-          <div class="price">￥{{totalPrice.toFixed(2)}}</div>
-          <div class="btn" @click="submit">提交订单</div>
-        </div>
+        </template>
       </div>
     </div>
     <store ref="store"></store>

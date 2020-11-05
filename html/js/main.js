@@ -8,6 +8,7 @@ const app = new Vue({
     menus: [
       { text: '兴盛优选购物', value: 'cart' },
       { text: '订单', value: 'order' },
+      { text: '优惠券', value: 'coupon', num: 0 },
       { text: '设置', value: 'setting' },
       { text: '关于', value: 'about' }
     ],
@@ -44,7 +45,9 @@ const app = new Vue({
     },
     // 播放视频
     videoUrl: '',
-    storeShow: false
+    storeShow: false,
+    // 优惠券列表
+    coupon: [],
   },
   mounted() {
     this.init()
@@ -52,8 +55,8 @@ const app = new Vue({
   },
   methods: {
     async init() {
-      
       await this.login()
+      // 获取分类和商品
       this.reload()
     },
     async reload() {
@@ -62,6 +65,12 @@ const app = new Vue({
       })
       this.selectCate = 0
       this.getMalls()
+      // 获取优惠券信息
+      this.coupon = await request({
+        url: 'index/getCoupon'
+      })
+      console.log(this.coupon.length)
+      this.menus.filter(item => item.value === 'coupon')[0].num = this.coupon.length
     },
     nav(url) {
       const { shell } = require('electron')
@@ -371,13 +380,6 @@ const app = new Vue({
         }
       }).catch(err => {
         this.submitStatus = false
-      })
-    },
-    editStore() {
-      this.$refs.store.select().then(store => {
-        this.storeInfo = store
-        window.userInfo.storeInfo = store
-        this.reload()
       })
     }
   }
