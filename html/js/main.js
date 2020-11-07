@@ -66,11 +66,14 @@ const app = new Vue({
       this.selectCate = 0
       this.getMalls()
       // 获取优惠券信息
-      this.coupon = await request({
+      const coupon = await request({
         url: 'index/getCoupon'
       })
-      console.log(this.coupon.length)
-      this.menus.filter(item => item.value === 'coupon')[0].num = this.coupon.length
+      for (let i = 0, l = coupon.length; i < l; i++) {
+        coupon[i].prParams = Object.fromEntries(coupon[i].linkUrl.split('&').map(item => item.split('=')))
+      }
+      this.menus.filter(item => item.value === 'coupon')[0].num = coupon.length
+      this.coupon = coupon
     },
     nav(url) {
       const { shell } = require('electron')
@@ -210,6 +213,14 @@ const app = new Vue({
           id: cate.brandWindowId || cate.windowId
         }
       })
+      // 计算商品可用优惠券
+      for (let i = 0, l = this.malls.length; i < l; i++) {
+        const element = this.malls[i]
+        const mallCoupon = this.coupon.find(item => item.prParams.prid == element.prId && item.prParams['@skuSn'] == element.skuSn)
+        if(mallCoupon){
+          element.coupon = mallCoupon
+        }
+      }
     },
     stopPropagation(e) {
       e.stopPropagation()
