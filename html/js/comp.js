@@ -199,6 +199,10 @@ const vueComponents = {
                     </div>
                   </div>
                 </div>
+                <div class="count">
+                  <span v-if="item.totalTicketAmt" class="coupon">优惠: -{{item.totalTicketAmt}}</span>
+                  <span class="price">实付金额: <span>{{item.totalCashAmt}}</span></span>
+                </div>
               </div>
             </div>
             <div class="group">
@@ -218,6 +222,10 @@ const vueComponents = {
                       <div class="num">x{{goods.qty}}</div>
                     </div>
                   </div>
+                </div>
+                <div class="count">
+                  <span v-if="item.totalTicketAmt" class="coupon">优惠: -{{item.totalTicketAmt}}</span>
+                  <span class="price">实付金额: <span>{{item.totalCashAmt}}</span></span>
                 </div>
               </div>
             </div>
@@ -326,28 +334,40 @@ const vueComponents = {
   },
   // 优惠券
   coupon: {
-    data() {
-      return {
-
-      }
-    },
     props: ['list'],
     template: `
       <div class="coupon-comp">
         <div class="item" v-for="item in list" :key="item.ticketId">
-          <div class="left">
-            <div class="price">￥<span>{{item.amount}}</span></div>
-            <div class="limit">满{{item.orderAmountLimit}}可用</div>
+          <img :src="item.product.imgUrl" />
+          <div class="center">
+            <div class="product-name number-of-lines--2">{{item.product.productName}}</div>
+            <div class="product-price">平台价:￥{{item.product.saleAmt}}</div>
+            <div class="product-coupon">券后价:￥{{item.product.saleAmt - item.ticketAmt}}</div>
           </div>
           <div class="right">
-            <div class="name">{{item.toolName}}</div>
-            <div class="time">{{item.tmActive.substr(0, 10)}} - {{item.tmExpire.substr(0, 10)}}</div>
+            <div class="price">￥<span>{{item.ticketAmt}}</span></div>
+            <div class="limit" @click="getMalls">去使用</div>
           </div>
         </div>
       </div>
     `,
     methods: {
-
+      getMalls() {
+        if (this.couponMalls) {
+          this.$emit('coupon-malls', this.couponMalls)
+          return
+        }
+        request({
+          url: 'index/mallsFromSpusn',
+          type: 'POST',
+          data: {
+            ids: this.list.map(item => item.product.spuSn)
+          }
+        }).then(res => {
+          this.couponMalls = res
+          this.$emit('coupon-malls', this.couponMalls)
+        })
+      }
     }
   },
   // 门店

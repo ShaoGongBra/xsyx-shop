@@ -65,15 +65,7 @@ const app = new Vue({
       })
       this.selectCate = 0
       this.getMalls()
-      // 获取优惠券信息
-      const coupon = await request({
-        url: 'index/getCoupon'
-      })
-      for (let i = 0, l = coupon.length; i < l; i++) {
-        coupon[i].prParams = Object.fromEntries(coupon[i].linkUrl.split('&').map(item => item.split('=')))
-      }
-      this.menus.filter(item => item.value === 'coupon')[0].num = coupon.length
-      this.coupon = coupon
+      this.getCoupon()
     },
     nav(url) {
       const { shell } = require('electron')
@@ -169,6 +161,7 @@ const app = new Vue({
           keyWord
         }
       })
+      this.getMallCoupon()
     },
     userShow(type, status, e) {
       if (status) {
@@ -213,14 +206,28 @@ const app = new Vue({
           id: cate.brandWindowId || cate.windowId
         }
       })
-      // 计算商品可用优惠券
+      this.getMallCoupon()
+    },
+    // 计算商品可用优惠券
+    getMallCoupon() {
       for (let i = 0, l = this.malls.length; i < l; i++) {
         const element = this.malls[i]
-        const mallCoupon = this.coupon.find(item => item.prParams.prid == element.prId && item.prParams['@skuSn'] == element.skuSn)
-        if(mallCoupon){
-          element.coupon = mallCoupon
-        }
+        element.coupon = this.coupon.find(item => item.skuSn == element.skuSn)
       }
+    },
+    async getCoupon() {
+      // 获取优惠券信息
+      const coupon = await request({
+        url: 'index/getCoupon'
+      })
+      this.menus.filter(item => item.value === 'coupon')[0].num = coupon.length
+      this.coupon = coupon
+      this.getMallCoupon()
+    },
+    setCouponMalls(e) {
+      this.selectCate = -1
+      this.malls = e
+      this.getMallCoupon()
     },
     stopPropagation(e) {
       e.stopPropagation()
@@ -337,7 +344,8 @@ const app = new Vue({
             pi: item.prId,
             eskuSn: item.eskuSn,
             pt: 'BRAND_HOUSE',
-            title: item.prName
+            title: item.prName,
+            tks: item.coupon ? [item.coupon.ticketId] : [], // 优惠券
           })
         }
       }
@@ -374,6 +382,8 @@ const app = new Vue({
           const myNotification = new Notification('商品购买成功', {
             body: '请在10分钟内前往小程序支付订单'
           })
+          // 重新获取有效优惠券
+          this.getCoupon()
           myNotification.onclick = () => {
             if (this.contentRoutre === 'order') {
               this.contentRoutre = 'cart'

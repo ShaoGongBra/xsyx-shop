@@ -70,7 +70,7 @@
               {{item.ulimitQty > 0 ? '每人限购:' + item.ulimitQty : ''}}</span>
             <div class="bottom">
               <span class="price">￥{{item.saleAmt}}</span>
-              <span class="price-coupon" v-if="item.coupon">券后价:￥{{item.saleAmt - item.coupon.amount}}</span>
+              <span class="price-coupon" v-if="item.coupon">券后:￥{{item.saleAmt - item.coupon.ticketAmt}}</span>
               <span class="price-old" v-else>￥{{item.marketAmt}}</span>
               <span class="add" @click="addCart(item, 'add', $event)">上车</span>
             </div>
@@ -82,7 +82,7 @@
         <goods-detail v-if="contentRoutre === 'goods-detail'" :mall="selectMall" @close="contentRoutre = 'cart'">
         </goods-detail>
         <order v-else-if="contentRoutre === 'order'"></order>
-        <coupon v-else-if="contentRoutre === 'coupon'" :list="coupon"></coupon>
+        <coupon v-else-if="contentRoutre === 'coupon'" :list="coupon" @coupon-malls="setCouponMalls"></coupon>
         <setting v-else-if="contentRoutre === 'setting'" :store-select="$refs.store" @reload="reload"></setting>
         <about v-else-if="contentRoutre === 'about'"></about>
         <template v-else>
@@ -108,7 +108,8 @@
                       {{item.ulimitQty > 0 ? '每人限购:' + item.ulimitQty : ''}}</span>
                     <div class="bottom">
                       <span class="price">￥{{item.saleAmt}}</span>
-                      <span class="price-old">￥{{item.marketAmt}}</span>
+                      <span class="price-coupon" v-if="item.coupon">券后:￥{{item.saleAmt - item.coupon.ticketAmt}}</span>
+                      <span class="price-old" v-else>￥{{item.marketAmt}}</span>
                       <div class="action">
                         <span class="btn" @click="addCart(item, 'reduce', $event)">减</span>
                         <span class="num">{{item.qty}}</span>
@@ -116,6 +117,7 @@
                       </div>
                     </div>
                   </div>
+                  <div class="coupon" v-if="item.coupon">优惠券</div>
                 </div>
               </div>
             </div>

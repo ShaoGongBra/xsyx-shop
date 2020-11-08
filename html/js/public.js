@@ -453,7 +453,7 @@
               url: 'user/window/getProducts/v1',
               method: 'POST',
               data: {
-                windowId,
+                windowId: 100,
                 excludeAct: "N",
                 windowType: "BRAND_HOUSE",
                 spuSns: ids.splice(0, this.pageSize),
@@ -474,6 +474,21 @@
         await getMalls(malls)
         await this.getQty(malls)
         return malls
+      },
+      async mallsFromSpusn(data) {
+        const list = await ajax({
+          url: 'user/window/getProducts/v1',
+          method: 'POST',
+          data: {
+            windowId: 1,
+            excludeAct: "N",
+            windowType: "BRAND_HOUSE",
+            spuSns: data.ids,
+            isFirstRefresh: 'FALSE'
+          }
+        })
+        await this.getQty(list.records)
+        return list.records
       },
       async mall(data) {
         const { spuSn, skuSn, productId, activityId } = data
@@ -799,17 +814,15 @@
         }))
       },
       async getCoupon() {
-        const list = await ajax({
-          url: 'ticket/queryMyTickets',
+        const coupon = await ajax({
+          url: 'ticket/queryTicketProduct',
           demain: 'marketing.xsyxsc.com',
-          data: {
-            queryStatus: 'UNUSED',
-            pageNo: 1,
-            pageSize: 30,
-            channelUse: 'WXAPP'
-          }
+          method: 'POST',
         })
-        return list.records
+        return coupon.ticketList.map(item => {
+          item.product = coupon.productMap[item.skuSn]
+          return item
+        })
       }
     }
   }
