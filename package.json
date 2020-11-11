@@ -7,6 +7,7 @@
   "scripts": {
     "start": "electron .",
     "devmain": "electron --inspect=5858 .",
+    "service": "node service.js",
     "build:mac": "electron-packager . --platform=darwin --arch=x64 --icon=icon.icns --app-version=1.0.8 --out=./dist",
     "build:win": "electron-packager . --platform=win32 --arch=x64 --icon=icon.ico --app-version=1.0.8  --out=./dist"
   },

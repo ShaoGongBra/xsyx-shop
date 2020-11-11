@@ -75,13 +75,6 @@ ipcMain.on('request', (event, data) => {
     request.setHeader(key, header[key])
   }
   request.on('response', response => {
-    event.sender.send('request-callback', {
-      ...response,
-      success: false,
-      message: '测试',
-      key: data.key,
-      data: data
-    })
     response.on('data', result => {
       const res = JSON.parse(result)
       event.sender.send('request-callback', {
@@ -91,14 +84,7 @@ ipcMain.on('request', (event, data) => {
         key: data.key
       })
     })
-    response.on('end', () => {
-      event.sender.send('request-callback', {
-        success: false,
-        message: '响应中已无数据',
-        key: data.key
-      })
-    })
-  });
+  })
   request.on('error', e => {
     event.sender.send('request-callback', {
       ...e,
