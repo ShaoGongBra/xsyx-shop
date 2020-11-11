@@ -508,6 +508,7 @@ const vueComponents = {
       // 点击底层官博弹出框
       closePop() {
         this.cityShow = false
+        this.cityKeyword = ''
       },
       stopPropagation(e) {
         e.stopPropagation()
@@ -668,4 +669,90 @@ const vueComponents = {
       }
     }
   },
+  'verify-code': {
+    data: function () {
+      return {
+        x: 0,
+        y: 0,
+        bigImage: '',
+        smallImage: '',
+        show: false
+      }
+    },
+    template: `
+      <div v-if="show" class="verify-code" @click="colse">
+        <div @click="stopPropagation">
+          <div class="title">验证码</div>
+          <div class="verify" @click="submit" @mousemove="move">
+            <img class="bg" :src="bigImage" />
+            <img class="float" :src="smallImage" :style="{top: y + 'px', left: x + 'px'}" />
+          </div>
+          <div class="tip">请点击上方图片空缺处的正中稍微靠右</div>
+        </div>
+      </div>
+    `,
+    // mounted() {
+    //   asyncTimeOut(1000).then(this.start)
+    // },
+    methods: {
+      start() {
+        if (this.show) {
+          return Promise.reject({ message: '正在验证中' })
+        }
+        this.show = true
+        return new Promise((resolve, reject) => {
+          this.getImage()
+          this.returnFunc = [resolve, reject]
+        })
+      },
+      async getImage() {
+        const data = await request({
+          url: 'index/getVerifyCodeImage'
+        })
+        this.y = data.y
+        this.bigImage = data.bigPicUrl
+        this.smallImage = data.smallPicUrl
+      },
+      move(e) {
+        // console.log(e)
+        this.x = e.layerX
+      },
+      async submit(e) {
+        this.x = e.layerX
+        // 通过x计算name
+        var a = function (t) {
+          var e = parseInt(1e3 * Math.random()), s = parseInt(1e4 * Math.random());
+          return e = "111" + e, e = e.substr(-3), s = "1111" + s, s = s.substr(-4), t = "000" + t,
+            t = t.substr(-3), +(t = "" + e + t + s);
+        }
+        // 通过y计算date
+        var i = function (t) {
+          var e = parseInt(1e4 * Math.random()), s = parseInt(1e3 * Math.random());
+          return e = "1111" + e, e = e.substr(-4), s = "111" + s, s = s.substr(-3), t = "000" + t,
+            t = t.substr(-3), +(t = "" + e + t + s);
+        }
+        try {
+          const code = await request({
+            url: 'index/verifyCodeImage',
+            data: {
+              name: a(this.x),
+              date: i(this.y)
+            }
+          })
+          this.show = false
+          this.returnFunc[0](code)
+        } catch (error) {
+          toast(error.message)
+          this.getImage()
+        }
+      },
+      colse() {
+        this.show = false
+        this.returnFunc[1]()
+      },
+      stopPropagation(e) {
+        e.stopPropagation()
+      },
+    }
+  }
 }

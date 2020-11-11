@@ -1332,6 +1332,7 @@ input:focus {
     align-items: center;
     justify-content: center;
     padding: 10px;
+    margin-left: 8px;
     flex-shrink: 0;
     /* background-image: linear-gradient(to bottom right, #f56fa0f7, #335b9e);
     background-image: linear-gradient(to bottom right, #4839849c, #142135); */
@@ -1355,4 +1356,50 @@ input:focus {
     background-color: #2c2a2d;
     color: #e2e2e2;
     border-radius: 18px;
+}
+
+.verify-code {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+.verify-code > div {
+    width: 490px;
+    background-color: #2c2a2d;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.verify-code .title{
+    font-size: 14px;
+    font-weight: bold;
+    color: #e2e2e2;
+    padding: 12px;
+    background-color: #1d1d1d;
+    text-align: center;
+}
+.verify-code .verify{
+    width: 100%;
+    position: relative;
+}
+.verify-code .verify .bg{
+    width: 100%;
+}
+.verify-code .verify .float{
+    position: absolute;
+    left: 0;
+    z-index: 1;
+    width: 88px;
+    margin-left: -44px;
+}
+.verify-code .tip{
+    font-size: 12px;
+    color: #e2e2e2;
+    padding: 10px;
+    text-align: center;
 }

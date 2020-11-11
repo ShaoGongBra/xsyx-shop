@@ -143,6 +143,7 @@
     <div v-if="videoUrl" class="pop-video" @click="videoUrl = ''">
       <video :src="videoUrl" controls="controls" autoplay @click="stopPropagation"></video>
     </div>
+    <verify-code ref="verifyCode"></verify-code>
   </div>
   <div class="toast"></div>
 </body>

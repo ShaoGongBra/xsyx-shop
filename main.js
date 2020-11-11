@@ -1,15 +1,15 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, Menu, ipcMain, powerSaveBlocker } = require('electron')
+const { app, BrowserWindow, Menu, ipcMain, powerSaveBlocker, net } = require('electron')
 const path = require('path')
 
 function createWindow() {
   // 禁用菜单
-  Menu.setApplicationMenu(null)
+  // Menu.setApplicationMenu(null)
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1000,
+    width: 1600,
     height: 800,
-    resizable: false, //禁止改变主窗口尺寸
+    // resizable: false, //禁止改变主窗口尺寸
     backgroundColor: '#404040',
     // frame: false,
     webPreferences: {
@@ -55,4 +55,60 @@ ipcMain.on('add-power-save-blocker', (event, arg) => {
 
 ipcMain.on('del-power-save-blocker', (event, arg) => {
   powerSaveBlocker.stop(arg)
+})
+
+ipcMain.on('request', (event, data) => {
+  const url = data.method === 'POST' ? data.url : [
+    data.url,
+    '?',
+    Object.keys(data.data).map(key => [key, data.data[key]].join('=')).join('&')
+  ].join('')
+  const request = net.request({
+    url,
+    method: data.method,
+  })
+  const header = {
+    ...data.headers,
+    'content-type': data.type === 'json' ? 'application/json' : 'application/x-www-form-urlencoded',
+  }
+  for (const key in header) {
+    request.setHeader(key, header[key])
+  }
+  request.on('response', response => {
+    event.sender.send('request-callback', {
+      ...response,
+      success: false,
+      message: '测试',
+      key: data.key,
+      data: data
+    })
+    response.on('data', result => {
+      const res = JSON.parse(result)
+      event.sender.send('request-callback', {
+        ...res,
+        success: res.rspCode === 'success',
+        message: res.rspDesc,
+        key: data.key
+      })
+    })
+    response.on('end', () => {
+      event.sender.send('request-callback', {
+        success: false,
+        message: '响应中已无数据',
+        key: data.key
+      })
+    })
+  });
+  request.on('error', e => {
+    event.sender.send('request-callback', {
+      ...e,
+      success: false,
+      message: '请求出错',
+      key: data.key
+    })
+  })
+  if (data.data && data.method === 'POST') {
+    request.write(data.type === 'json' ? JSON.stringify(data.data) : Object.keys(data.data).map(key => [key, data.data[key]].join('=')).join('&'))
+  }
+  request.end()
 })

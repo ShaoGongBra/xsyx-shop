@@ -56,6 +56,11 @@ const app = new Vue({
   methods: {
     async init() {
       await this.login()
+      // setTimeout(() => {
+      //   this.$refs.verifyCode.start().then(code => {
+      //     console.log(code)
+      //   })
+      // }, 2e3)
       // 获取分类和商品
       this.reload()
     },
@@ -319,7 +324,7 @@ const app = new Vue({
       this.totalPrice = num
     },
     // 创建订单
-    submit() {
+    async submit() {
       if (this.submitStatus) {
         toast('正在提交中')
         return
@@ -328,6 +333,8 @@ const app = new Vue({
         toast('没有要提交的商品')
         return
       }
+      // 是否需要验证码
+      let verify = false
       const itemList = []
       for (let i = 0, il = this.cart.length; i < il; i++) {
         const list = this.cart[i].list
@@ -347,11 +354,18 @@ const app = new Vue({
             title: item.prName,
             tks: item.coupon ? [item.coupon.ticketId] : [], // 优惠券
           })
+          if(!verify && item.verificationCode){
+            verify = true
+          }
         }
       }
       if (itemList.length === 0) {
         toast('没有要提交的商品')
         return
+      }
+      let token = ''
+      if(verify){
+        token = await this.$refs.verifyCode.start()
       }
       const setting = window.getSetting()
       this.submitStatus = true
@@ -363,7 +377,8 @@ const app = new Vue({
           name: setting.name,
           areaId: this.storeInfo.areaId,
           storeId: this.storeInfo.storeId,
-          itemList
+          itemList,
+          token
         }
       }).then(res => {
         this.submitStatus = false

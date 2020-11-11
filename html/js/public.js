@@ -1,40 +1,69 @@
 (that => {
   that.ajax = ({ demain = 'mall.xsyxsc.com', url, method = 'GET', data = {}, type = 'json' }) => {
+
+    const { ipcRenderer } = require('electron')
     return new Promise((resolve, reject) => {
       const { userInfo = {} } = window
       const { storeInfo = {} } = userInfo
       method = method.toUpperCase()
       data = {
-        areaId: storeInfo.areaId,
-        provinceCode: storeInfo.provinceId,
-        cityCode: storeInfo.cityId,
-        areaCode: storeInfo.countyId,
-        storeId: storeInfo.storeId,
+        areaId: storeInfo.areaId || '',
+        provinceCode: storeInfo.provinceId || '',
+        cityCode: storeInfo.cityId || '',
+        areaCode: storeInfo.countyId || '',
+        storeId: storeInfo.storeId || '',
         userKey: userInfo.key || '',
         ...data
       }
-      $.ajax({
+      const requestKey = (new Date()).getTime()
+      const callBack = (event, res) => {
+        if (res.key = requestKey) {
+          console.log('请求结果', url, res)
+          ipcRenderer.removeListener('request-callback', callBack)
+          if (res.success) {
+            resolve(res.data)
+          } else {
+            reject(res)
+          }
+        }
+      }
+      ipcRenderer.on('request-callback', callBack)
+      ipcRenderer.send('request', {
         url: 'https://' + demain + '/' + url,
-        type: method,
-        data: type === 'json' && method === 'POST' ? JSON.stringify(data) : data,
-        dataType: 'json',
-        contentType: type === 'json' ? 'application/json' : 'application/x-www-form-urlencoded',
+        method,
+        data,
+        type,
         headers: {
           source: 'applet',
           userKey: userInfo.key || '',
-          version: '1.10.18'
+          version: '1.10.21',
+          Referer: 'https://servicewechat.com/wx6025c5470c3cb50c/208/page-frame.html'
         },
-        success: res => {
-          if (res.rspCode === 'success') {
-            resolve(res.data)
-          } else {
-            reject({ message: res.rspDesc })
-          }
-        },
-        error: err => {
-          reject(err)
-        }
+        key: requestKey
       })
+      // $.ajax({
+      //   url: 'https://' + demain + '/' + url,
+      //   type: method,
+      //   data: type === 'json' && method === 'POST' ? JSON.stringify(data) : data,
+      //   dataType: 'json',
+      //   contentType: type === 'json' ? 'application/json' : 'application/x-www-form-urlencoded',
+      //   headers: {
+      //     source: 'applet',
+      //     userKey: userInfo.key || '',
+      //     version: '1.10.21',
+      //     Referer: 'https://servicewechat.com/wx6025c5470c3cb50c/208/page-frame.html'
+      //   },
+      //   success: res => {
+      //     if (res.rspCode === 'success') {
+      //       resolve(res.data)
+      //     } else {
+      //       reject({ message: res.rspDesc })
+      //     }
+      //   },
+      //   error: err => {
+      //     reject(err)
+      //   }
+      // })
     })
   }
 
@@ -472,6 +501,7 @@
 
         const malls = []
         await getMalls(malls)
+        // malls[0].verificationCode = true
         await this.getQty(malls)
         return malls
       },
@@ -598,7 +628,8 @@
                   r: data.name,
                   si: data.storeId,
                   ess: data.eskuSn,
-                  itemList: items
+                  itemList: items,
+                  tk: data.token
                 })
               }
             })
@@ -822,6 +853,23 @@
         return coupon.ticketList.map(item => {
           item.product = coupon.productMap[item.skuSn]
           return item
+        })
+      },
+      async getVerifyCodeImage() {
+        return await ajax({
+          url: 'turingtest/turingTestData/getPuzzleDataByUserKey',
+          demain: 'user.xsyxsc.com',
+          method: 'POST',
+          type: 'form'
+        })
+      },
+      async verifyCodeImage(data) {
+        return await ajax({
+          url: 'turingtest/turingTestData/verifyPuzzle',
+          demain: 'user.xsyxsc.com',
+          method: 'POST',
+          type: 'form',
+          data
         })
       }
     }
