@@ -4,7 +4,7 @@ const vueComponents = {
       return {
         info: {},
         log: [],
-        nav: ['商品详情', '购买记录'],
+        nav: ['商品详情', '购买记录', '供应商资质'],
         navIndex: 0,
         swiperOption: {
           loop: true,
@@ -12,13 +12,20 @@ const vueComponents = {
             el: '.swiper-pagination'
           }
         },
+        license: {
+          blsrc: '',
+          fdsrc: ''
+        }
       }
     },
     props: {
       mall: {
         type: [Object],
         default: {}
-      }
+      },
+      verifyCode: {
+        type: [Object]
+      },
     },
     template: `
         <div v-if="info.prId" class="mall-detail">
@@ -44,6 +51,24 @@ const vueComponents = {
              <span class="item" v-for="(item, index) in nav" :key="item" :class="{hover: navIndex === index}" @click="switchNav(index)">{{item}}</span> 
             </div>
             <div class="detail" v-if="navIndex === 0">
+              <table>
+                <tr>
+                  <td>供应商</td>
+                  <td>{{info.vesName}}</td>
+                </tr>
+                <tr>
+                  <td>品牌</td>
+                  <td>{{info.brName}}</td>
+                </tr>
+                <tr>
+                  <td>产地</td>
+                  <td>{{info.yieldly}}</td>
+                </tr>
+                <tr v-for="attr in info.attrs">
+                  <td>{{attr.name}}</td>
+                  <td>{{attr.attr}}</td>
+                </tr>
+              </table>
               <img v-for="item in info.detailUrls" :src="item" :key="item" alt="">
             </div>
             <div class="log" v-if="navIndex === 1">
@@ -55,6 +80,10 @@ const vueComponents = {
                 </div>
                 <span class="num">{{item.buyQty}}件</span>
               </div>
+            </div>
+            <div class="license" v-if="navIndex === 2">
+              <img v-if="license.blsrc" :src="license.blsrc" alt="">
+              <img v-if="license.fdsrc" :src="license.fdsrc" alt="">
             </div>
           </div>
         </div>
@@ -72,6 +101,8 @@ const vueComponents = {
         this.switchNav(0)
         this.log = []
         this.info = {}
+        this.license.blsrc = null
+        this.license.fdsr = null
         this.info = await request({
           url: 'index/mall',
           data: {
@@ -92,6 +123,17 @@ const vueComponents = {
               productId: this.mall.prId,
               activityId: this.mall.acId,
               productType: this.mall.prType
+            }
+          })
+        } else if (index === 2 && (!this.license.blsrc && !this.license.fdsrc)) {
+          const ticket = await this.verifyCode.start()
+          this.license = await request({
+            url: 'index/mallLicense',
+            data: {
+              productId: this.mall.prId,
+              activityId: this.mall.acId,
+              spuSn: this.info.spuSn,
+              ticket
             }
           })
         }
@@ -685,15 +727,15 @@ const vueComponents = {
           <div class="title">验证码</div>
           <div class="verify" @click="submit" @mousemove="move">
             <img class="bg" :src="bigImage" />
-            <img class="float" :src="smallImage" :style="{top: y + 'px', left: x + 'px'}" />
+            <img class="float" :src="smallImage" :style="{top: y + 'px', transform: 'translate('+x+'px,0)'}" />
           </div>
           <div class="tip">请点击上方图片空缺处的正中稍微靠右</div>
         </div>
       </div>
     `,
-    // mounted() {
-    //   asyncTimeOut(1000).then(this.start)
-    // },
+    mounted() {
+      // asyncTimeOut(1000).then(this.start)
+    },
     methods: {
       start() {
         if (this.show) {
@@ -714,11 +756,10 @@ const vueComponents = {
         this.smallImage = data.smallPicUrl
       },
       move(e) {
-        // console.log(e)
-        this.x = e.layerX
+        const verify = e.path.find(item => item.className === 'verify')
+        this.x = e.clientX - verify.offsetLeft
       },
-      async submit(e) {
-        this.x = e.layerX
+      async submit() {
         // 通过x计算name
         var a = function (t) {
           var e = parseInt(1e3 * Math.random()), s = parseInt(1e4 * Math.random());
@@ -735,7 +776,7 @@ const vueComponents = {
           const code = await request({
             url: 'index/verifyCodeImage',
             data: {
-              name: a(this.x),
+              name: a(this.x - 55),
               date: i(this.y)
             }
           })

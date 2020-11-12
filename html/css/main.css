@@ -543,13 +543,20 @@ input:focus {
 }
 
 .mall-detail .detail {
-    background-color: #999;
+    background-color: #f5f5f5;
+}
+.mall-detail .detail table{
+    padding: 0 10px
+}
+.mall-detail .detail table td{
+  padding: 6px;
+  font-size: 14px;
+  color: #2a2c30;
 }
 
 .mall-detail .detail img {
     width: 430px;
 }
-
 .mall-detail .log {
 }
 
@@ -586,6 +593,13 @@ input:focus {
 .mall-detail .log .item .num {
     color: #e60012;
     font-size: 14px;
+}
+.mall-detail .license{
+    background-color: #f5f5f5;
+}
+.mall-detail .license img{
+    background-color: #f5f5f5;
+    width: 430px;
 }
 
 .login {
@@ -1370,7 +1384,7 @@ input:focus {
     justify-content: center;
 }
 .verify-code > div {
-    width: 490px;
+    width: 610px;
     background-color: #2c2a2d;
     border-radius: 10px;
     overflow: hidden;
@@ -1393,9 +1407,9 @@ input:focus {
 .verify-code .verify .float{
     position: absolute;
     left: 0;
+    width: 110px;
     z-index: 1;
-    width: 88px;
-    margin-left: -44px;
+    margin-left: -55px;
 }
 .verify-code .tip{
     font-size: 12px;

@@ -79,7 +79,7 @@
         </div>
       </div>
       <div class="content">
-        <goods-detail v-if="contentRoutre === 'goods-detail'" :mall="selectMall" @close="contentRoutre = 'cart'">
+        <goods-detail :verify-code="$refs.verifyCode" v-if="contentRoutre === 'goods-detail'" :mall="selectMall" @close="contentRoutre = 'cart'">
         </goods-detail>
         <order v-else-if="contentRoutre === 'order'"></order>
         <coupon v-else-if="contentRoutre === 'coupon'" :list="coupon" @coupon-malls="setCouponMalls"></coupon>
@@ -149,6 +149,7 @@
 </body>
 <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=42e2f98b596c7b448c2acdab7432bb73"></script>
 <script src="./js/public.js"></script>
+<script src="./js/api.js"></script>
 <script src="./js/comp.js"></script>
 <script src="./js/main.js"></script>
 
