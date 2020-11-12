@@ -20,10 +20,9 @@
   "author": "xujian",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^10.1.3"
+    "electron": "^10.1.5"
   },
   "dependencies": {
-    "electron-packager": "^15.1.0",
-    "jimp": "^0.16.1"
+    "electron-packager": "^15.1.0"
   }
 }
