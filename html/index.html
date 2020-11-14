@@ -13,6 +13,7 @@
   <style>
 
   </style>
+  <link href="./css/icon.css" rel="stylesheet">
   <link href="./css/main.css" rel="stylesheet">
   <link href="./css/swiper.min.css" rel="stylesheet">
   <script src="./js/jquery.min.js"></script>
@@ -24,12 +25,22 @@
 
 <body>
   <div id="app" v-cloak>
+    <div class="window">
+      <div class="title">
+        兴盛优选
+      </div>
+      <span>
+        <i class="icon icon-minus-bold" @click="minApp"></i>
+        <i class="icon icon-close-bold" @click="closeApp"></i>
+      </span>
+    </div>
     <div class="header">
       <div class="left">
         <div class="menu" v-for="item in menus"
           :class="{hover: item.value === contentRoutre || (item.value === 'cart' && !menus.map(item => item.value).includes(contentRoutre))}"
           @click="contentRoutre = item.value">{{item.text}}<span v-if="item.num" class="num">{{item.num}}</span></div>
       </div>
+      <div class="center"></div>
       <div class="right">
         <input type="text" placeholder="请输入关键词搜索商品" @input="search">
         <div class="user">
@@ -72,7 +83,7 @@
               <span class="price">￥{{item.saleAmt}}</span>
               <span class="price-coupon" v-if="item.coupon">券后:￥{{item.saleAmt - item.coupon.ticketAmt}}</span>
               <span class="price-old" v-else>￥{{item.marketAmt}}</span>
-              <span class="add" @click="addCart(item, 'add', $event)">上车</span>
+              <span class="add icon icon-add-bold" @click="addCart(item, 'add', $event)"></span>
             </div>
           </div>
           <div class="coupon" v-if="item.coupon">优惠券</div>
@@ -111,9 +122,9 @@
                       <span class="price-coupon" v-if="item.coupon">券后:￥{{item.saleAmt - item.coupon.ticketAmt}}</span>
                       <span class="price-old" v-else>￥{{item.marketAmt}}</span>
                       <div class="action">
-                        <span class="btn" @click="addCart(item, 'reduce', $event)">减</span>
+                        <span class="btn icon icon-minus-bold" @click="addCart(item, 'reduce', $event)"></span>
                         <span class="num">{{item.qty}}</span>
-                        <span class="btn" @click="addCart(item, 'add', $event)">加</span>
+                        <span class="btn icon icon-add-bold" @click="addCart(item, 'add', $event)"></span>
                       </div>
                     </div>
                   </div>

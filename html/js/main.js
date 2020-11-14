@@ -6,7 +6,7 @@ const app = new Vue({
   data: {
     showLogin: false,
     menus: [
-      { text: '兴盛优选购物', value: 'cart' },
+      { text: '购物', value: 'cart' },
       { text: '订单', value: 'order' },
       { text: '优惠券', value: 'coupon', num: 0 },
       { text: '设置', value: 'setting' },
@@ -56,11 +56,6 @@ const app = new Vue({
   methods: {
     async init() {
       await this.login()
-      // setTimeout(() => {
-      //   this.$refs.verifyCode.start().then(code => {
-      //     console.log(code)
-      //   })
-      // }, 2e3)
       // 获取分类和商品
       this.reload()
     },
@@ -96,6 +91,16 @@ const app = new Vue({
 
         }
       })
+    },
+    // 关闭app
+    closeApp() {
+      const { ipcRenderer } = require('electron')
+      ipcRenderer.send('close-app')
+    },
+    // 最小化app
+    minApp() {
+      const { ipcRenderer } = require('electron')
+      ipcRenderer.send('min-app')
     },
     async getUserInfo(key) {
       if (!key) {
@@ -144,6 +149,7 @@ const app = new Vue({
       }
     },
     loginOut() {
+      window.userInfo = {}
       this.userInfo = {}
       this.showUserInfo = false
       localStorage.removeItem("userInfo")

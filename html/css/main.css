@@ -52,6 +52,29 @@ input:focus {
     position: relative;
 }
 
+.window{
+    background-color: #2a2c30;
+    flex-direction: row;
+    height: 30px;
+    justify-content: space-between;
+    align-items: stretch;
+}
+
+.window .title{
+    color: #e2e2e2;
+    font-size: 14px;
+    line-height: 30px;
+    padding: 0 10px;
+    flex: 1;
+    -webkit-app-region: drag;
+}
+
+.window .icon{
+    color: #e2e2e2;
+    padding: 0 10px;
+    line-height: 30px;
+}
+
 .header {
     flex-direction: row;
     justify-content: space-between;
@@ -67,6 +90,11 @@ input:focus {
     flex-direction: row;
     align-items: center;
     justify-content: flex-end;
+}
+.header .center{
+    flex: 1;
+    height: 100%;
+    -webkit-app-region: drag;
 }
 
 .header .menu {

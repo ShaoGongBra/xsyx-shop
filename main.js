@@ -2,16 +2,18 @@
 const { app, BrowserWindow, Menu, ipcMain, powerSaveBlocker, net } = require('electron')
 const path = require('path')
 
+let mainBrowser
 function createWindow() {
   // 禁用菜单
-  Menu.setApplicationMenu(null)
+  // Menu.setApplicationMenu(null)
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1600,
+    width: 1000,
     height: 800,
-    resizable: false, //禁止改变主窗口尺寸
+    // resizable: false, //禁止改变主窗口尺寸
     backgroundColor: '#404040',
-    // frame: false,
+    frame: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true
@@ -20,22 +22,25 @@ function createWindow() {
   // 隐藏mac菜单
   // app.dock.hide()
 
+  // 打开调试模式
+  // mainWindow.webContents.openDevTools()
   // and load the index.html of the app.
   mainWindow.loadFile('html/index.html')
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
+  return mainWindow
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  createWindow()
+  mainBrowser = createWindow()
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    if (BrowserWindow.getAllWindows().length === 0) mainBrowser = createWindow()
   })
 })
 
@@ -97,4 +102,12 @@ ipcMain.on('request', (event, data) => {
     request.write(data.type === 'json' ? JSON.stringify(data.data) : Object.keys(data.data).map(key => [key, data.data[key]].join('=')).join('&'))
   }
   request.end()
+})
+
+// 关闭app
+ipcMain.on('close-app', (event, data) => {
+  if (process.platform !== 'darwin') app.quit()
+})
+ipcMain.on('min-app', (event, data) => {
+  mainBrowser.minimize()
 })
