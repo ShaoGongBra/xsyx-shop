@@ -299,10 +299,10 @@ electron-packager@^15.1.0:
     semver "^7.1.3"
     yargs-parser "^19.0.1"
 
-electron@^10.1.3:
-  version "10.1.3"
-  resolved "https://registry.npm.taobao.org/electron/download/electron-10.1.3.tgz?cache=0&sync_timestamp=1602791331702&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Felectron%2Fdownload%2Felectron-10.1.3.tgz#7e276e373bf30078bd4cb1184850a91268dc0e6c"
-  integrity sha1-fiduNzvzAHi9TLEYSFCpEmjcDmw=
+electron@^10.1.5:
+  version "10.1.5"
+  resolved "https://registry.npmjs.org/electron/-/electron-10.1.5.tgz#f2b161310f627063e73fbac44efcb35dece83a90"
+  integrity sha512-fys/KnEfJq05TtMij+lFvLuKkuVH030CHYx03iZrW5DNNLwjE6cW3pysJ420lB0FRSfPjTHBMu2eVCf5TG71zQ==
   dependencies:
     "@electron/get" "^1.0.1"
     "@types/node" "^12.0.12"

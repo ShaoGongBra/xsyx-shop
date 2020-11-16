@@ -75,20 +75,24 @@ const app = new Vue({
       $.ajax({
         url: 'https://api.github.com/repos/ShaoGongBra/xsyx-shop/releases/latest',
         success: res => {
-          const version = require("../package.json").version.split('.')
-          const newVersion = res.tag_name.split('.')
-          for (let i = 0; i < version.length; i++) {
-            if (Number(version[i]) < Number(newVersion[i])) {
-              this.updateInfo = {
-                url: res.html_url,
-                message: res.body,
-                name: res.name,
-                show: true
-              }
-              break
+          function toNum(a) {
+            a = a.toString()
+            const c = a.split('.')
+            const num_place = ["", "0", "00", "000", "0000"], r = num_place.reverse()
+            for (let i = 0; i < c.length; i++) {
+              const len = c[i].length
+              c[i] = r[len] + c[i]
+            }
+            return c.join('')
+          }
+          if (toNum(res.tag_name) > toNum(require("../package.json").version)) {
+            this.updateInfo = {
+              url: res.html_url,
+              message: res.body,
+              name: res.name,
+              show: true
             }
           }
-
         }
       })
     },
@@ -360,7 +364,7 @@ const app = new Vue({
             title: item.prName,
             tks: item.coupon ? [item.coupon.ticketId] : [], // 优惠券
           })
-          if(!verify && item.verificationCode){
+          if (!verify && item.verificationCode) {
             verify = true
           }
         }
@@ -370,7 +374,7 @@ const app = new Vue({
         return
       }
       let token = ''
-      if(verify){
+      if (verify) {
         token = await this.$refs.verifyCode.start()
       }
       const setting = window.getSetting()
