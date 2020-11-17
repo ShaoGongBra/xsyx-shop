@@ -80,14 +80,26 @@ ipcMain.on('request', (event, data) => {
     request.setHeader(key, header[key])
   }
   request.on('response', response => {
-    response.on('data', result => {
-      const res = JSON.parse(result)
-      event.sender.send('request-callback', {
-        ...res,
-        success: res.rspCode === 'success',
-        message: res.rspDesc,
-        key: data.key
-      })
+    let rowData = ''
+    response.on('data', result => rowData += result)
+    response.on('end', () => {
+      try {
+        const res = JSON.parse(rowData)
+        event.sender.send('request-callback', {
+          ...res,
+          success: res.rspCode === 'success',
+          message: res.rspDesc,
+          key: data.key
+        })
+      } catch (error) {
+        event.sender.send('request-callback', {
+          success: false,
+          message: '不是json数据',
+          error,
+          key: data.key
+        })
+      }
+
     })
   })
   request.on('error', e => {
