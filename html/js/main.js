@@ -63,6 +63,8 @@ const app = new Vue({
       this.cates = await request({
         url: 'index/cates'
       })
+      // 采集本地商品数据
+      localMall.start(this.cates)
       this.selectCate = 0
       this.getMalls()
       this.getCoupon()

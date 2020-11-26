@@ -167,7 +167,9 @@
         const malls = []
         await getMalls(malls)
         // malls[0].verificationCode = true
-        await this.getQty(malls)
+        if (!data.disableQty) {
+          await this.getQty(malls)
+        }
         return malls
       },
       async mallsFromSpusn(data) {
@@ -198,6 +200,7 @@
             activityId
           }
         })
+        mall.priceLog = await query.api.mall.getLog(mall.sku)
         return mall
       },
       async mallLog(data) {
@@ -522,10 +525,12 @@
           demain: 'marketing.xsyxsc.com',
           method: 'POST',
         })
-        return coupon.ticketList.map(item => {
-          item.product = coupon.productMap[item.skuSn]
-          return item
-        })
+        return coupon
+          ? coupon.ticketList.map(item => {
+            item.product = coupon.productMap[item.skuSn]
+            return item
+          })
+          : []
       },
       async getVerifyCodeImage() {
         return await ajax({
@@ -546,7 +551,7 @@
       }
     },
     test: {
-      
+
     }
   }
 })(window)

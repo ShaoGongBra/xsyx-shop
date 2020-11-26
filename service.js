@@ -6,6 +6,12 @@ var hostName = '127.0.0.1';
 var port = 3002;
 //创建服务
 var server = http.createServer(function (request, res) {
+    if (request.url.indexOf('123') > 0) {
+        res.statusCode = 302
+        res.setHeader('Location', '/')
+        res.end()
+        return
+    }
     let postData = ''
     const resData = {
         rspCode: 'success',

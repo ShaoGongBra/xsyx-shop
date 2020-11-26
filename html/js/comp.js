@@ -2,7 +2,11 @@ const vueComponents = {
   'goods-detail': {
     data() {
       return {
-        info: {},
+        info: {
+          priceLog: {
+            log: []
+          }
+        },
         log: [],
         nav: ['商品详情', '购买记录', '供应商资质'],
         navIndex: 0,
@@ -67,6 +71,14 @@ const vueComponents = {
                 <tr v-for="attr in info.attrs">
                   <td>{{attr.name}}</td>
                   <td>{{attr.attr}}</td>
+                </tr>
+                <tr v-for="attr in info.attrs">
+                  <td>趋势</td>
+                  <td>{{info.priceLog.trend === 'flat'?'持平':info.priceLog.trend === 'up'?'价格上涨':'价格下降'}}</td>
+                </tr>
+                <tr v-for="attr in info.attrs">
+                  <td>价格</td>
+                  <td>最高价:￥{{info.priceLog.max}}  最低价:￥{{info.priceLog.min}}</td>
                 </tr>
               </table>
               <img v-for="item in info.detailUrls" :src="item" :key="item" alt="">
