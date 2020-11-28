@@ -357,13 +357,13 @@ const app = new Vue({
         for (let j = 0; j < list.length; j++) {
           const item = list[j]
           itemList.push({
+            title: item.prName,
             pai: item.acId,
             q: item.qty,
             sku: item.sku,
             pi: item.prId,
-            eskuSn: item.eskuSn,
-            pt: 'BRAND_HOUSE',
-            title: item.prName,
+            pt: item.prType,
+            ess: item.eskuSn,
             tks: item.coupon ? [item.coupon.ticketId] : [], // 优惠券
           })
           if (!verify && item.verificationCode) {

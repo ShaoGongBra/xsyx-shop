@@ -166,7 +166,6 @@
 
         const malls = []
         await getMalls(malls)
-        // malls[0].verificationCode = true
         if (!data.disableQty) {
           await this.getQty(malls)
         }
@@ -288,6 +287,8 @@
             if (requestNum !== 0) {
               await asyncTimeOut(2000)
             }
+            const { userInfo = {} } = window
+            // const { storeInfo = {} } = userInfo
             requestNum++
             return await ajax({
               demain: 'trade.xsyxsc.com',
@@ -299,6 +300,12 @@
                   ai: data.areaId,
                   ct: 'MINI_PROGRAM',
                   ot: 'CHOICE',
+                  iv: 0,
+                  // 下面三个是用户信息
+                  un: userInfo.userName,
+                  wn: userInfo.nickName,
+                  wi: userInfo.headImgUrl,
+                  // 下面是收货人
                   p: data.tel,
                   r: data.name,
                   si: data.storeId,
@@ -521,9 +528,12 @@
       },
       async getCoupon() {
         const coupon = await ajax({
-          url: 'ticket/queryTicketProduct',
+          url: 'ticket/v2/queryAvailableTicketProduct',
           demain: 'marketing.xsyxsc.com',
           method: 'POST',
+          data: {
+            channelUse: 'WXAPP'
+          }
         })
         return coupon
           ? coupon.ticketList.map(item => {
