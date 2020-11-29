@@ -1,180 +1,89 @@
+const Dexie = require('dexie')
 const query = class {
-
-  // 请求对象
-  static request = null
-
-  // 数据库对象
   static db = null
-
-  static init(datebase = 'xsyx') {
-    this.request = window.indexedDB.open(datebase)
-    this.request.onerror = event => {
-      console.log('加载失败', event)
-    }
-    this.request.onsuccess = event => {
-      this.db = event.target.result
-      this.dbLoad()
-    }
-    this.request.onupgradeneeded = event => {
-      // 保存 IDBDataBase 接口
-      this.db = event.target.result
-
-      // 为该数据库创建一个对象仓库
-      let objectStore = this.db.createObjectStore('mall', { autoIncrement: true })
-      objectStore.createIndex('sku', 'sku', { unique: true })
-      objectStore.createIndex('prId', 'prId', { unique: false })
-      objectStore.createIndex('windowId', 'windowId', { unique: false })
-      objectStore.createIndex('verificationCode', 'verificationCode', { unique: false })
-
-      objectStore = this.db.createObjectStore('priceLog', { autoIncrement: true })
-      objectStore.createIndex('sku', 'sku', { unique: false })
-    }
+  static init() {
+    this.db = new Dexie('xsyx')
+    // console.log(this.db)
+    this.db.version(0.2).stores({
+      mall: '++,prId,&sku,skuSn,windowId,areaId,saleAmt,prName,tmBuyStart,prType,buyDate,wave,minimum',
+      priceLog: '++,sku,date,saleAmt'
+    })
+    this.db.open()
   }
 
-  // 数据库加载成功
-  static dbLoad() {
-    // this.db.onerror = event => {
-    //   console.log("数据库错误: ", event.target.error)
-    // }
-    for (const key in this.api) {
-      if (this.api.hasOwnProperty(key)) {
-        this.api[key].init(this.db)
+  static mall = {
+    async get(sku) {
+      return query.db.mall.get({ sku })
+    },
+    async getList(where) {
+      where = {
+        
       }
-    }
-  }
-
-  static api = {
-    mall: {
-      db: null,
-      mallStore: null,
-      priceLogStore: null,
-      init(db) {
-        this.db = db
-      },
-      get(sku) {
-        return new Promise((resolve, reject) => {
-          const transaction = this.db.transaction(['mall'])
-          transaction.onerror = event => {
-            reject(event)
+      query.db.mall.where(where).toArray()
+    },
+    async getLog(sku) {
+      const data = {
+        log: await query.db.priceLog.where({ sku }).toArray(),
+        max: 0,
+        min: 0,
+        trend: 'flat', // up 上涨 flat持平 down下降
+        minimum: false, // 历史最低价
+        highest: false, // 历史最高价
+      }
+      if (data.log.length > 0) {
+        const prices = data.log.map(item => item.saleAmt)
+        data.min = Math.min(...prices)
+        data.max = Math.max(...prices)
+        if (prices.length >= 2) {
+          if (data.min === prices[prices.length - 1]) {
+            data.minimum = true
           }
-          const mallStore = transaction.objectStore('mall')
-          mallStore.index('sku').get(sku).onsuccess = e => {
-            const { result } = e.target
-            resolve(result)
+          if (data.max === prices[prices.length - 1]) {
+            data.highest = true
           }
-        })
-      },
-      /**
-       * 插入商品 如果存在商品则更新商品
-       * @param {onject} list 商品列表
-       */
-      async insert(mall) {
-        const data = await this.get(mall.sku)
-        return new Promise((resolve, reject) => {
-          const objectStore = this.db.transaction(['mall'], 'readwrite').objectStore('mall')
-          if (data) {
-            objectStore.index('sku').openCursor(IDBKeyRange.only(mall.sku)).onsuccess = event => {
-              const cursor = event.target.result
-              if (cursor) {
-                if (cursor.value.sku === mall.sku) {
-                  const request = cursor.update(mall)
-                  request.onsuccess = function () {
-                    resolve()
-                  }
-                } else {
-                  cursor.continue()
-                }
-              } else {
-                reject('没有要更新的项目')
-              }
-            }
-
-
-          } else {
-            const request = objectStore.add(mall)
-            request.onsuccess = event => {
-              resolve(event.target.result)
-            }
-            request.onerror = event => {
-              reject(event.target.error)
-            }
-          }
-        })
-      },
-      async insertLog(mall) {
-        return new Promise((resolve, reject) => {
-          const transaction = this.db.transaction(['priceLog'], 'readwrite')
-          transaction.onerror = event => {
-            reject(event)
-          }
-          const priceLogStore = transaction.objectStore('priceLog')
-          priceLogStore.index('sku').openCursor(IDBKeyRange.only(mall.sku), 'prev').onsuccess = event => {
-            const cursor = event.target.result
-            const data = {
-              sku: mall.sku,
-              saleAmt: mall.saleAmt,
-              date: mall.tmBuyStart.substr(0, 10)
-            }
-            // 插入商品记录
-            if (!cursor || (cursor.value.saleAmt !== data.saleAmt && cursor.value.date != data.tmBuyStart)) {
-              priceLogStore.add(data).onsuccess = () => resolve()
-            } else {
-              resolve()
-            }
-          }
-        })
-      },
-      async getLog(sku) {
-        return new Promise((resolve, reject) => {
-          const transaction = this.db.transaction(['mall', 'priceLog'])
-          transaction.onerror = event => {
-            reject(event)
-          }
+          const lastTwo = prices.slice(prices.length - 2)
+          data.trend = lastTwo[0] > lastTwo[1] ? 'down' : lastTwo[0] < lastTwo[1] ? 'up' : 'flat'
+        }
+      }
+      return data
+    },
+    /**
+     * 插入商品列表 如果存在商品则更新商品
+     * @param {array} list 商品列表
+     */
+    async insertList(list) {
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i]
+        item.buyDate = item.tmBuyStart.substr(0, 10)
+        item.minimum = false
+        const log = await query.db.priceLog.where({ sku: item.sku }).desc().toArray()
+        if (!log[0]) {
+          item.wave = 0
+        } else {
+          item.wave = Number((item.saleAmt - log[0].saleAmt).toFixed(2))
+          item.minimum = Math.min(...log.map(item => item.saleAmt)) >= item.saleAmt
+        }
+        // 插入日志
+        if (!log[0] || item.wave !== 0) {
           const data = {
-            log: [],
-            max: 0,
-            min: 0,
-            trend: 'flat', // up 上涨 flat持平 down下降
+            sku: item.sku,
+            saleAmt: item.saleAmt,
+            date: item.buyDate
           }
-          const priceLogStore = transaction.objectStore('priceLog')
-          priceLogStore.index('sku').openCursor(IDBKeyRange.only(sku)).onsuccess = e => {
-            const cursor = e.target.result
-            if (cursor) {
-              data.log.push(cursor.value)
-              cursor.continue()
-            } else {
-              if (data.log.length > 0) {
-                const prices = data.log.map(item => item.saleAmt)
-                data.min = Math.min(...prices)
-                data.max = Math.max(...prices)
-                if (prices.length >= 2) {
-                  const lastTwo = prices.slice(prices.length - 2)
-                  data.trend = lastTwo[0] > lastTwo[1] ? 'down' : lastTwo[0] < lastTwo[1] ? 'up' : 'flat'
-                }
-              }
-              resolve(data)
-            }
-          }
-        })
-      },
-      /**
-       * 插入商品列表 如果存在商品则更新商品
-       * @param {array} list 商品列表
-       */
-      async insertList(list) {
-        for (let i = 0, l = list.length; i < l; i++) {
-          try {
-            await this.insert(list[i])
-            await this.insertLog(list[i])
-          } catch (error) {
-            console.log('插入失败', error)
-          }
+          await query.db.priceLog.add(data)
+        }
+        // 更新商品信息
+        const keys = await query.db.mall.where({ sku: item.sku }).primaryKeys()
+        if (!keys[0]) {
+          query.db.mall.add(item)
+        } else {
+          query.db.mall.put(item, keys[0])
         }
       }
     }
   }
 }
-// 初始化数据库
+
 query.init()
 
 const localMall = {
@@ -184,8 +93,9 @@ const localMall = {
    * @param {array} cates 分类
    */
   async start(cates) {
+    this.cates = cates
     if (this.status !== 0) {
-      return
+      return this.cateMall()
     }
     let last = localStorage.getItem('lastLocalMall')
     if (last) {
@@ -198,13 +108,13 @@ const localMall = {
       if (time > date23 && last.startTime > date23) {
         this.status = 2
         console.log('今天23点采集过')
-        return
+        return this.cateMall()
       }
       // 今天采集过数据
       if (time <= date23 && dateToStr('yyyy-MM-dd') === dateToStr('yyyy-MM-dd', last.startTime)) {
         this.status = 2
         console.log('今天采集过')
-        return
+        return this.cateMall()
       }
     }
     console.log('开始采集')
@@ -212,15 +122,20 @@ const localMall = {
     const startTime = (new Date()).getTime()
     let count = 0
     for (let i = 0; i < cates.length; i++) {
+      if(cates[i].windowId < 0) {
+        continue
+      }
       const list = await this.getMalls(cates[i].windowId)
       count += list.length
     }
+    // await this.getMalls(cates[12].windowId)
     this.status = 2
     localStorage.setItem('lastLocalMall', JSON.stringify({
       startTime,
       endTime: (new Date()).getTime(),
       count
     }))
+    return this.cateMall()
   },
   async getMalls(windowId) {
     const list = await request({
@@ -230,8 +145,18 @@ const localMall = {
         disableQty: true
       }
     })
-    query.api.mall.insertList(list)
-    await asyncTimeOut(96)
+    query.mall.insertList(list)
     return list
+  },
+  // 获取降价、涨价商品
+  async cateMall() {
+    for (let i = 0; i < this.cates.length; i++) {
+      const cate = this.cates[i]
+      if(cate.windowId > 0){
+        continue
+      }
+      // cate.list = await query.mall.getList(cate.where)
+      cate.errInfo = ''
+    }
   }
 }

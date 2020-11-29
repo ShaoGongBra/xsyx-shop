@@ -285,6 +285,7 @@ const app = new Vue({
             ipcRenderer.removeListener('add-power-save-blocker-reply', item.powerCallBack)
           })
           item.timer.start(time - 10, 'H时M分S秒', true)
+          // item.timer.start(time + 10, 'H时M分S秒', true)
           // 阻止进入省电模式
           item.powerCallBack = (event, res) => {
             item.powerID = res

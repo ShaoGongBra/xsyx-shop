@@ -23,6 +23,7 @@
     "electron": "^10.1.5"
   },
   "dependencies": {
+    "dexie": "^3.0.3",
     "electron-packager": "^15.1.0"
   }
 }

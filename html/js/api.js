@@ -9,7 +9,38 @@
             openBrandHouse: 'OPEN'
           }
         })
+        const buyDate = dateToStr('HH') === '23' ? dateToStr('yyyy-MM-dd', dateAdd('d', 1)) : dateToStr('yyyy-MM-dd')
         const arr = [
+          {
+            windowId: -1,
+            list: [],
+            errInfo: '数据加载中',
+            where: {
+              buyDate,
+              wave: ['<', 0]
+            },
+            windowName: "今日降价"
+          },
+          {
+            windowId: -2,
+            windowName: "今日涨价",
+            list: [],
+            errInfo: '数据加载中',
+            where: {
+              buyDate,
+              wave: ['>', 0]
+            },
+          },
+          {
+            windowId: -3,
+            windowName: "历史底价",
+            list: [],
+            errInfo: '数据加载中',
+            where: {
+              buyDate,
+              minimum: true
+            },
+          },
           {
             windowId: 3,
             windowName: "10点秒杀"
@@ -38,14 +69,14 @@
             windowId: 45,
             windowName: "每天一品"
           },
-          {
-            windowId: 490,
-            windowName: "每日精选"
-          },
-          {
-            windowId: 692,
-            windowName: "今日新品"
-          }
+          // {
+          //   windowId: 490,
+          //   windowName: "每日精选"
+          // },
+          // {
+          //   windowId: 692,
+          //   windowName: "今日新品"
+          // }
         ]
         for (const key in res) {
           if (res.hasOwnProperty(key) && typeof res[key] === 'object') {
@@ -166,6 +197,7 @@
 
         const malls = []
         await getMalls(malls)
+        // console.log(JSON.parse(JSON.stringify(malls)))
         if (!data.disableQty) {
           await this.getQty(malls)
         }
@@ -199,7 +231,7 @@
             activityId
           }
         })
-        mall.priceLog = await query.api.mall.getLog(mall.sku)
+        mall.priceLog = await query.mall.getLog(mall.sku)
         return mall
       },
       async mallLog(data) {

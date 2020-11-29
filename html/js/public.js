@@ -39,9 +39,9 @@ const { ipcRenderer } = require('electron');
         headers: {
           source: 'applet',
           userKey: userInfo.key || '',
-          version: '1.10.29',
-          Referer: 'https://servicewechat.com/wx6025c5470c3cb50c/217/page-frame.html',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36 MicroMessenger/7.0.9.501 NetType/WIFI Language/zh_CN miniProgram'
+          version: '1.10.30',
+          Referer: 'https://servicewechat.com/wx6025c5470c3cb50c/218/page-frame.html',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36 MicroMessenger/7.0.9.501 NetType/WIFI MiniProgramEnv/Windows WindowsWechat'
         },
         key: requestKey
       })
@@ -128,6 +128,24 @@ const { ipcRenderer } = require('electron');
   that.strToDate = dateStr => {
     const reCat = /(\d{1,4})/gm
     return new Date(...dateStr.match(reCat).map((item, index) => index === 1 ? --item : item))
+  }
+  /**
+   * 日期计算  
+   * @param {string} strInterval 可选值 y 年 m月 d日 w星期 ww周 h时 n分 s秒  
+   * @param {int} num 对应数值
+   * @param {Date} date  日期对象
+   * @return {Date} 返回计算后的日期对象
+   */
+  that.dateAdd = (strInterval, num, date = new Date()) => {
+    switch (strInterval) {
+      case 's': return new Date(date.getTime() + (1000 * num))
+      case 'n': return new Date(date.getTime() + (60000 * num))
+      case 'h': return new Date(date.getTime() + (3600000 * num))
+      case 'd': return new Date(date.getTime() + (86400000 * num))
+      case 'w': return new Date(date.getTime() + ((86400000 * 7) * num))
+      case 'm': return new Date(date.getFullYear(), (date.getMonth()) + num, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds())
+      case 'y': return new Date((date.getFullYear() + num), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds())
+    }
   }
   let toastTimer = null
   that.toast = str => {
