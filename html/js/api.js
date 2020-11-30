@@ -16,6 +16,7 @@
             list: [],
             errInfo: '数据加载中',
             where: {
+              areaId: window.userInfo.storeInfo.areaId,
               buyDate,
               wave: ['<', 0]
             },
@@ -27,6 +28,7 @@
             list: [],
             errInfo: '数据加载中',
             where: {
+              areaId: window.userInfo.storeInfo.areaId,
               buyDate,
               wave: ['>', 0]
             },
@@ -37,8 +39,9 @@
             list: [],
             errInfo: '数据加载中',
             where: {
+              areaId: window.userInfo.storeInfo.areaId,
               buyDate,
-              minimum: true
+              minimum: 1
             },
           },
           {

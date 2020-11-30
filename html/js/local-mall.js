@@ -17,9 +17,10 @@ const query = class {
     },
     async getList(where) {
       where = {
-        
+        buyDate: where.buyDate,
+        minimum: 1
       }
-      query.db.mall.where(where).toArray()
+      return query.db.mall.where(where).toArray()
     },
     async getLog(sku) {
       const data = {
@@ -55,13 +56,14 @@ const query = class {
       for (let i = 0; i < list.length; i++) {
         const item = list[i]
         item.buyDate = item.tmBuyStart.substr(0, 10)
-        item.minimum = false
+        item.minimum = 0
         const log = await query.db.priceLog.where({ sku: item.sku }).desc().toArray()
         if (!log[0]) {
           item.wave = 0
         } else {
           item.wave = Number((item.saleAmt - log[0].saleAmt).toFixed(2))
-          item.minimum = Math.min(...log.map(item => item.saleAmt)) >= item.saleAmt
+          const prices = log.map(item => item.saleAmt)
+          item.minimum = Math.min(...prices) >= item.saleAmt && item.saleAmt < Math.max(...prices) ? 1 : 0
         }
         // 插入日志
         if (!log[0] || item.wave !== 0) {
@@ -122,7 +124,7 @@ const localMall = {
     const startTime = (new Date()).getTime()
     let count = 0
     for (let i = 0; i < cates.length; i++) {
-      if(cates[i].windowId < 0) {
+      if (cates[i].windowId < 0) {
         continue
       }
       const list = await this.getMalls(cates[i].windowId)
@@ -152,10 +154,10 @@ const localMall = {
   async cateMall() {
     for (let i = 0; i < this.cates.length; i++) {
       const cate = this.cates[i]
-      if(cate.windowId > 0){
+      if (cate.windowId > 0) {
         continue
       }
-      // cate.list = await query.mall.getList(cate.where)
+      cate.list = await query.mall.getList(cate.where)
       cate.errInfo = ''
     }
   }

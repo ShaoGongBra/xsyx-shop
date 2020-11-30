@@ -67,7 +67,8 @@
               @click="filter[index].value = option.value">{{option.name}}</div>
           </div>
         </div>
-        <div v-for="item in filterList()" class="mall-item" @click="showMallDetail(item)">
+        <div v-for="item in (cates[selectCate] && cates[selectCate].windowId < 0 ? cates[selectCate].list : filterList())" class="mall-item"
+          @click="showMallDetail(item)">
           <div class="ad-image">
             <img :src="item.adUrl" alt="">
             <div v-if="item.videoUrl" class="play-bg" @click="playVideo(item.videoUrl, $event)">
@@ -90,7 +91,8 @@
         </div>
       </div>
       <div class="content">
-        <goods-detail :verify-code="$refs.verifyCode" v-if="contentRoutre === 'goods-detail'" :mall="selectMall" @close="contentRoutre = 'cart'">
+        <goods-detail :verify-code="$refs.verifyCode" v-if="contentRoutre === 'goods-detail'" :mall="selectMall"
+          @close="contentRoutre = 'cart'">
         </goods-detail>
         <order v-else-if="contentRoutre === 'order'"></order>
         <coupon v-else-if="contentRoutre === 'coupon'" :list="coupon" @coupon-malls="setCouponMalls"></coupon>
