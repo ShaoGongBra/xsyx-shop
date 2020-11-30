@@ -67,8 +67,7 @@
               @click="filter[index].value = option.value">{{option.name}}</div>
           </div>
         </div>
-        <div v-for="item in (cates[selectCate] && cates[selectCate].windowId < 0 ? cates[selectCate].list : filterList())" class="mall-item"
-          @click="showMallDetail(item)">
+        <div v-for="item in filterList()" class="mall-item" @click="showMallDetail(item)">
           <div class="ad-image">
             <img :src="item.adUrl" alt="">
             <div v-if="item.videoUrl" class="play-bg" @click="playVideo(item.videoUrl, $event)">
@@ -82,12 +81,16 @@
               {{item.ulimitQty > 0 ? '每人限购:' + item.ulimitQty : ''}}</span>
             <div class="bottom">
               <span class="price">￥{{item.saleAmt}}</span>
-              <span class="price-coupon" v-if="item.coupon">券后:￥{{item.saleAmt - item.coupon.ticketAmt}}</span>
+              <span class="price-coupon"
+                v-if="item.coupon">券后:￥{{Number((item.saleAmt - item.coupon.ticketAmt).toFixed(2))}}</span>
               <span class="price-old" v-else>￥{{item.marketAmt}}</span>
               <span class="add icon icon-add-bold" @click="addCart(item, 'add', $event)"></span>
             </div>
           </div>
           <div class="coupon" v-if="item.coupon">优惠券</div>
+          <div class="wave" v-if="item.wave != 0" :class="{add: item.wave > 0}">
+            {{item.wave>0?'+':''}}{{Number((item.wave / (item.saleAmt + Math.abs(item.wave)) * 100).toFixed(2))}}%
+          </div>
         </div>
       </div>
       <div class="content">
@@ -121,7 +124,8 @@
                       {{item.ulimitQty > 0 ? '每人限购:' + item.ulimitQty : ''}}</span>
                     <div class="bottom">
                       <span class="price">￥{{item.saleAmt}}</span>
-                      <span class="price-coupon" v-if="item.coupon">券后:￥{{item.saleAmt - item.coupon.ticketAmt}}</span>
+                      <span class="price-coupon"
+                        v-if="item.coupon">券后:￥{{Number((item.saleAmt - item.coupon.ticketAmt).toFixed(2))}}</span>
                       <span class="price-old" v-else>￥{{item.marketAmt}}</span>
                       <div class="action">
                         <span class="btn icon icon-minus-bold" @click="addCart(item, 'reduce', $event)"></span>
@@ -131,6 +135,9 @@
                     </div>
                   </div>
                   <div class="coupon" v-if="item.coupon">优惠券</div>
+                  <div class="wave" v-if="item.wave != 0" :class="{add: item.wave > 0}">
+                    {{item.wave>0?'+':''}}{{Number((item.wave / (item.saleAmt + Math.abs(item.wave)) * 100).toFixed(2))}}%
+                  </div>
                 </div>
               </div>
             </div>
@@ -157,6 +164,9 @@
       <video :src="videoUrl" controls="controls" autoplay @click="stopPropagation"></video>
     </div>
     <verify-code ref="verifyCode"></verify-code>
+    <div class="init-status" v-if="initStatus === 0">
+      正在加载商品数据 马上完成
+    </div>
   </div>
   <div class="toast"></div>
 </body>
@@ -164,7 +174,7 @@
 <script src="./js/public.js"></script>
 <script src="./js/api.js"></script>
 <script src="./js/comp.js"></script>
-<script src="./js/main.js"></script>
 <script src="./js/local-mall.js"></script>
+<script src="./js/main.js"></script>
 
 </html>

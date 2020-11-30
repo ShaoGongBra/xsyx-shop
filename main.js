@@ -5,13 +5,13 @@ const path = require('path')
 let mainBrowser
 function createWindow() {
   // 禁用菜单
-  // Menu.setApplicationMenu(null)
+  Menu.setApplicationMenu(null)
 
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1600,
+    width: 1000,
     height: 800,
-    resizable: false, //禁止改变主窗口尺寸
+    // resizable: false, //禁止改变主窗口尺寸
     backgroundColor: '#404040',
     frame: false,
     webPreferences: {
@@ -26,7 +26,7 @@ function createWindow() {
   mainWindow.loadFile('html/index.html')
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
   return mainWindow
 }
 

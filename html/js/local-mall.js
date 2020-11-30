@@ -4,7 +4,7 @@ const query = class {
   static init() {
     this.db = new Dexie('xsyx')
     // console.log(this.db)
-    this.db.version(0.2).stores({
+    this.db.version(0.3).stores({
       mall: '++,prId,&sku,skuSn,windowId,areaId,saleAmt,prName,tmBuyStart,prType,buyDate,wave,minimum',
       priceLog: '++,sku,date,saleAmt'
     })
@@ -15,12 +15,35 @@ const query = class {
     async get(sku) {
       return query.db.mall.get({ sku })
     },
-    async getList(where) {
-      where = {
-        buyDate: where.buyDate,
-        minimum: 1
+    dayList: [],
+    async getDayList() {
+      if (this.dayList.length > 0) {
+        return this.dayList
+      }
+      await localMall.onLoad()
+      const where = {
+        areaId: window.userInfo.storeInfo.areaId,
+        buyDate: dateToStr('HH') === '23' ? dateToStr('yyyy-MM-dd', dateAdd('d', 1)) : dateToStr('yyyy-MM-dd')
       }
       return query.db.mall.where(where).toArray()
+    },
+    // 价格波动商品
+    async getPriceList(windowId) {
+      const list = await this.getDayList()
+      const windowIds = {
+        '-1': list => list.filter(item => item.wave < 0),
+        '-2': list => list.filter(item => item.wave > 0),
+        '-3': list => list.filter(item => item.minimum !== 0)
+      }
+      return windowIds[windowId](list)
+    },
+    async getSpuSnMall(spuSns) {
+      const list = await this.getDayList()
+      return list.filter(item => spuSns.includes(item.spuSn))
+    },
+    async getKeywordMall(keyword) {
+      const list = await this.getDayList()
+      return list.filter(item => item.prName.indexOf(keyword) !== -1)
     },
     async getLog(sku) {
       const data = {
@@ -58,22 +81,24 @@ const query = class {
         item.buyDate = item.tmBuyStart.substr(0, 10)
         item.minimum = 0
         const log = await query.db.priceLog.where({ sku: item.sku }).desc().toArray()
-        if (!log[0]) {
-          item.wave = 0
-        } else {
-          item.wave = Number((item.saleAmt - log[0].saleAmt).toFixed(2))
-          const prices = log.map(item => item.saleAmt)
-          item.minimum = Math.min(...prices) >= item.saleAmt && item.saleAmt < Math.max(...prices) ? 1 : 0
-        }
         // 插入日志
-        if (!log[0] || item.wave !== 0) {
+        if (!log[0] || item.saleAmt !== log[0].saleAmt) {
           const data = {
             sku: item.sku,
             saleAmt: item.saleAmt,
             date: item.buyDate
           }
           await query.db.priceLog.add(data)
+          log.unshift(data)
         }
+        if (log.length === 1) {
+          item.wave = 0
+        } else {
+          item.wave = Number((log[0].saleAmt - log[1].saleAmt).toFixed(2))
+        }
+        const prices = log.map(item => item.saleAmt)
+        item.minimum = Math.min(...prices) >= item.saleAmt && item.saleAmt < Math.max(...prices) ? 1 : 0
+
         // 更新商品信息
         const keys = await query.db.mall.where({ sku: item.sku }).primaryKeys()
         if (!keys[0]) {
@@ -90,14 +115,34 @@ query.init()
 
 const localMall = {
   status: 0, // 0 未采集 1 采集中 2已完成 3失败
+  onLoadCallbacks: [],
+  onLoad() {
+    if (this.status === 2) {
+      return Promise.resolve()
+    } else if (this.status === 2) {
+      Promise.reject('加载失败')
+    }
+    return new Promise((resolve, reject) => {
+      this.onLoadCallbacks.push([resolve, reject])
+    })
+  },
+  execCallBack() {
+    for (let i = 0; i < this.onLoadCallbacks.length; i++) {
+      this.onLoadCallbacks[i][0]()
+    }
+    this.onLoadCallbacks = []
+  },
   /**
    * 开始本地数据任务
    * @param {array} cates 分类
    */
   async start(cates) {
     this.cates = cates
+    if (this.status > 1) {
+      this.execCallBack()
+    }
     if (this.status !== 0) {
-      return this.cateMall()
+      return
     }
     let last = localStorage.getItem('lastLocalMall')
     if (last) {
@@ -109,14 +154,16 @@ const localMall = {
       // 在今天23点以后采集过数据
       if (time > date23 && last.startTime > date23) {
         this.status = 2
+        this.execCallBack()
         console.log('今天23点采集过')
-        return this.cateMall()
+        return
       }
       // 今天采集过数据
       if (time <= date23 && dateToStr('yyyy-MM-dd') === dateToStr('yyyy-MM-dd', last.startTime)) {
         this.status = 2
         console.log('今天采集过')
-        return this.cateMall()
+        this.execCallBack()
+        return
       }
     }
     console.log('开始采集')
@@ -137,7 +184,7 @@ const localMall = {
       endTime: (new Date()).getTime(),
       count
     }))
-    return this.cateMall()
+    this.execCallBack()
   },
   async getMalls(windowId) {
     const list = await request({
@@ -149,16 +196,5 @@ const localMall = {
     })
     query.mall.insertList(list)
     return list
-  },
-  // 获取降价、涨价商品
-  async cateMall() {
-    for (let i = 0; i < this.cates.length; i++) {
-      const cate = this.cates[i]
-      if (cate.windowId > 0) {
-        continue
-      }
-      cate.list = await query.mall.getList(cate.where)
-      cate.errInfo = ''
-    }
   }
 }

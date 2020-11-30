@@ -13,36 +13,15 @@
         const arr = [
           {
             windowId: -1,
-            list: [],
-            errInfo: '数据加载中',
-            where: {
-              areaId: window.userInfo.storeInfo.areaId,
-              buyDate,
-              wave: ['<', 0]
-            },
             windowName: "今日降价"
           },
           {
             windowId: -2,
-            windowName: "今日涨价",
-            list: [],
-            errInfo: '数据加载中',
-            where: {
-              areaId: window.userInfo.storeInfo.areaId,
-              buyDate,
-              wave: ['>', 0]
-            },
+            windowName: "今日涨价"
           },
           {
             windowId: -3,
-            windowName: "历史底价",
-            list: [],
-            errInfo: '数据加载中',
-            where: {
-              areaId: window.userInfo.storeInfo.areaId,
-              buyDate,
-              minimum: 1
-            },
+            windowName: "历史底价"
           },
           {
             windowId: 3,
@@ -126,30 +105,34 @@
         }
       },
       async search(data) {
-        const keyWord = data.keyWord
-        const getMalls = async (list, page = 1) => {
-          const data = await ajax({
-            url: 'user/product/searchProduct',
-            method: 'POST',
-            type: 'form',
-            data: {
-              keyWord,
-              page,
-              rows: this.pageSize,
-              apiVersion: 'V2',
-              openBrandhouse: 'TRUE'
-            }
-          })
-          list.push(...data.records)
-          if (data.total > list.length && data.records.length > 0) {
-            await getMalls(list, data.current + 1)
-          }
+        // const keyWord = data.keyWord
+        // const getMalls = async (list, page = 1) => {
+        //   const data = await ajax({
+        //     url: 'user/product/searchProduct',
+        //     method: 'POST',
+        //     type: 'form',
+        //     data: {
+        //       keyWord,
+        //       page,
+        //       rows: this.pageSize,
+        //       apiVersion: 'V2',
+        //       openBrandhouse: 'TRUE'
+        //     }
+        //   })
+        //   list.push(...data.records)
+        //   if (data.total > list.length && data.records.length > 0) {
+        //     await getMalls(list, data.current + 1)
+        //   }
+        // }
+        // const malls = []
+        // if (keyWord === '') {
+        //   return malls
+        // }
+        // await getMalls(malls)
+        if (data.keyWord === '') {
+          return []
         }
-        const malls = []
-        if (keyWord === '') {
-          return malls
-        }
-        await getMalls(malls)
+        const malls = await query.mall.getKeywordMall(data.keyWord)
         await this.getQty(malls)
         return malls
       },
@@ -197,9 +180,39 @@
 
           }
         }
-
+        const getLocalMalls = async malls => {
+          const list = await query.mall.getPriceList(windowId)
+          malls.push(...list)
+        }
+        const getSpuSnLocalMalls = async malls => {
+          const res = await ajax({
+            url: 'user/window/getProducts/v1',
+            method: 'POST',
+            data: {
+              windowId,
+              excludeAct: "N",
+              windowType: "BRAND_HOUSE",
+              pageSize: 8,
+              spuSns: [],
+              isFirstRefresh: 'TRUE'
+            }
+          })
+          const list = await query.mall.getSpuSnMall(res.spuSns)
+          malls.push(...list)
+        }
         const malls = []
-        await getMalls(malls)
+        // 获取本地数据
+        if (data.getLocal) {
+          if (windowId > 0) {
+            await getSpuSnLocalMalls(malls)
+          } else {
+            await getLocalMalls(malls)
+          }
+        } else {
+          if (windowId > 0) {
+            await getMalls(malls)
+          }
+        }
         // console.log(JSON.parse(JSON.stringify(malls)))
         if (!data.disableQty) {
           await this.getQty(malls)
@@ -207,19 +220,9 @@
         return malls
       },
       async mallsFromSpusn(data) {
-        const list = await ajax({
-          url: 'user/window/getProducts/v1',
-          method: 'POST',
-          data: {
-            windowId: 1,
-            excludeAct: "N",
-            windowType: "BRAND_HOUSE",
-            spuSns: data.ids,
-            isFirstRefresh: 'FALSE'
-          }
-        })
-        await this.getQty(list.records)
-        return list.records
+        const list = await query.mall.getSpuSnMall(data.ids)
+        await this.getQty(list)
+        return list
       },
       async mall(data) {
         const { spuSn, skuSn, productId, activityId } = data
@@ -570,6 +573,7 @@
             channelUse: 'WXAPP'
           }
         })
+        console.log(coupon)
         return coupon
           ? coupon.ticketList.map(item => {
             item.product = coupon.productMap[item.skuSn]

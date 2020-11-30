@@ -52,7 +52,7 @@ input:focus {
     position: relative;
 }
 
-.window{
+.window {
     background-color: #2a2c30;
     flex-direction: row;
     height: 30px;
@@ -60,7 +60,7 @@ input:focus {
     align-items: stretch;
 }
 
-.window .title{
+.window .title {
     color: #e2e2e2;
     font-size: 14px;
     line-height: 30px;
@@ -69,7 +69,7 @@ input:focus {
     -webkit-app-region: drag;
 }
 
-.window .icon{
+.window .icon {
     color: #e2e2e2;
     padding: 0 10px;
     line-height: 30px;
@@ -91,7 +91,7 @@ input:focus {
     align-items: center;
     justify-content: flex-end;
 }
-.header .center{
+.header .center {
     flex: 1;
     height: 100%;
     -webkit-app-region: drag;
@@ -404,6 +404,19 @@ input:focus {
     font-size: 12px;
     transform: rotate(45deg);
 }
+.mall-item .wave {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    padding: 8px;
+    background-color: rgb(6, 105, 6);
+    color: #fff;
+    font-size: 12px;
+}
+.mall-item .wave.add {
+    background-color: red;
+}
 
 .cart {
     width: 450px;
@@ -573,13 +586,13 @@ input:focus {
 .mall-detail .detail {
     background-color: #f5f5f5;
 }
-.mall-detail .detail table{
-    padding: 0 10px
+.mall-detail .detail table {
+    padding: 0 10px;
 }
-.mall-detail .detail table td{
-  padding: 6px;
-  font-size: 14px;
-  color: #2a2c30;
+.mall-detail .detail table td {
+    padding: 6px;
+    font-size: 14px;
+    color: #2a2c30;
 }
 
 .mall-detail .detail img {
@@ -622,10 +635,10 @@ input:focus {
     color: #e60012;
     font-size: 14px;
 }
-.mall-detail .license{
+.mall-detail .license {
     background-color: #f5f5f5;
 }
-.mall-detail .license img{
+.mall-detail .license img {
     background-color: #f5f5f5;
     width: 430px;
 }
@@ -1417,7 +1430,7 @@ input:focus {
     border-radius: 10px;
     overflow: hidden;
 }
-.verify-code .title{
+.verify-code .title {
     font-size: 14px;
     font-weight: bold;
     color: #e2e2e2;
@@ -1425,23 +1438,39 @@ input:focus {
     background-color: #1d1d1d;
     text-align: center;
 }
-.verify-code .verify{
+.verify-code .verify {
     width: 100%;
     position: relative;
 }
-.verify-code .verify .bg{
+.verify-code .verify .bg {
     width: 100%;
 }
-.verify-code .verify .float{
+.verify-code .verify .float {
     position: absolute;
     left: 0;
     width: 110px;
     z-index: 1;
     margin-left: -55px;
 }
-.verify-code .tip{
+.verify-code .tip {
     font-size: 12px;
     color: #e2e2e2;
     padding: 10px;
     text-align: center;
+}
+
+.init-status {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #fff;
+    font-weight: bold;
+    background-color: rgba(0, 0, 0, 0.3);
 }

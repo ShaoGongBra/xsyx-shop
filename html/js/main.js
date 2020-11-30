@@ -5,6 +5,7 @@ const app = new Vue({
   components: vueComponents,
   data: {
     showLogin: false,
+    initStatus: -1, // -1未开始 0进行中 1加载完成
     menus: [
       { text: '购物', value: 'cart' },
       { text: '订单', value: 'order' },
@@ -64,7 +65,9 @@ const app = new Vue({
         url: 'index/cates'
       })
       // 采集本地商品数据
-      localMall.start(this.cates)
+      this.initStatus = 0
+      await localMall.start(this.cates)
+      this.initStatus = 1
       this.selectCate = 0
       this.getMalls()
       this.getCoupon()
@@ -220,7 +223,8 @@ const app = new Vue({
       this.malls = await request({
         url: 'index/malls',
         data: {
-          id: cate.brandWindowId || cate.windowId
+          id: cate.brandWindowId || cate.windowId,
+          getLocal: true
         }
       })
       this.getMallCoupon()
@@ -237,8 +241,8 @@ const app = new Vue({
       const coupon = await request({
         url: 'index/getCoupon'
       })
-      this.menus.filter(item => item.value === 'coupon')[0].num = coupon.length
       this.coupon = coupon
+      this.menus.filter(item => item.value === 'coupon')[0].num = coupon.length
       this.getMallCoupon()
     },
     setCouponMalls(e) {
@@ -285,7 +289,6 @@ const app = new Vue({
             ipcRenderer.removeListener('add-power-save-blocker-reply', item.powerCallBack)
           })
           item.timer.start(time - 10, 'H时M分S秒', true)
-          // item.timer.start(time + 10, 'H时M分S秒', true)
           // 阻止进入省电模式
           item.powerCallBack = (event, res) => {
             item.powerID = res
