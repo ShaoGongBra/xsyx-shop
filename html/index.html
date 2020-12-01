@@ -16,11 +16,10 @@
   <link href="./css/icon.css" rel="stylesheet">
   <link href="./css/main.css" rel="stylesheet">
   <link href="./css/swiper.min.css" rel="stylesheet">
+  <link href="./css/v-charts.min.css" rel="stylesheet">
   <script src="./js/jquery.min.js"></script>
   <script>if (typeof module === 'object') { window.jQuery = window.$ = module.exports; };</script>
-  <script src="./js/swiper.min.js"></script>
   <script src="./js/vue.min.js"></script>
-  <script src="./js/vue-awesome-swiper.js"></script>
 </head>
 
 <body>
@@ -89,7 +88,7 @@
           </div>
           <div class="coupon" v-if="item.coupon">优惠券</div>
           <div class="wave" v-if="item.wave != 0" :class="{add: item.wave > 0}">
-            {{item.wave>0?'+':''}}{{Number((item.wave / (item.saleAmt + Math.abs(item.wave)) * 100).toFixed(2))}}%
+            {{item.wave>0?'+':''}}{{Number((item.wave / (item.saleAmt - item.wave) * 100).toFixed(2))}}%
           </div>
         </div>
       </div>
@@ -136,7 +135,7 @@
                   </div>
                   <div class="coupon" v-if="item.coupon">优惠券</div>
                   <div class="wave" v-if="item.wave != 0" :class="{add: item.wave > 0}">
-                    {{item.wave>0?'+':''}}{{Number((item.wave / (item.saleAmt + Math.abs(item.wave)) * 100).toFixed(2))}}%
+                    {{item.wave>0?'+':''}}{{Number((item.wave / (item.saleAmt - item.wave) * 100).toFixed(2))}}%
                   </div>
                 </div>
               </div>
@@ -171,6 +170,10 @@
   <div class="toast"></div>
 </body>
 <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=42e2f98b596c7b448c2acdab7432bb73"></script>
+<script src="./js/swiper.min.js"></script>
+<script src="./js/vue-awesome-swiper.js"></script>
+<script src="./js/echarts.min.js"></script>
+<script src="./js/v-charts.min.js"></script>
 <script src="./js/public.js"></script>
 <script src="./js/api.js"></script>
 <script src="./js/comp.js"></script>

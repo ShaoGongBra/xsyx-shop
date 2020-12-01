@@ -566,6 +566,10 @@ input:focus {
     color: #eee;
 }
 
+.mall-detail .ve-line{
+    margin-top: 16px;
+}
+
 .mall-detail .nav {
     flex-direction: row;
     align-items: center;

@@ -35,6 +35,12 @@ const app = new Vue({
         name: 'time',
         value: 'all',
         list: [{ name: '时间', value: 'all' }, { name: '0点', value: '00:00' }, { name: '10点', value: '10:00' }]
+      },
+      {
+        title: '降幅',
+        name: 'wave',
+        value: '',
+        list: [{ name: '降幅', value: '' }, { name: '正序', value: 'asc' }, { name: '倒序', value: 'desc' }]
       }
     ],
     // 版本更新
@@ -209,13 +215,17 @@ const app = new Vue({
     filterList() {
       const where = {}
       this.filter.map(item => where[item.name] = item.value)
-      return this.malls.filter(item =>
+      const list = this.malls.filter(item =>
         (where.limit === 0
           || (where.limit >= item.ulimitQty && item.ulimitQty !== 0))
         &&
         (where.time === 'all'
           || item.tmBuyStart.indexOf(where.time) === 11)
       )
+      if (where.wave) {
+        return list.sort((a, b) => (a.wave / (a.saleAmt - a.wave) - (b.wave / (b.saleAmt - b.wave))) * (where.wave === 'asc' ? 1 : -1))
+      }
+      return list
     },
     async getMalls() {
       this.malls.splice(0, this.malls.length)

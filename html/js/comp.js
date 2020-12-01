@@ -1,6 +1,50 @@
 const vueComponents = {
   'goods-detail': {
     data() {
+      this.chartExtend = {
+        series: {
+          step: 'end',
+          smooth: false
+        },
+        legend: {
+          textStyle: {
+            color: '#e2e2e2'
+          },
+          pageTextStyle: {
+            color: '#e2e2e2'
+          }
+        },
+        xAxis: {
+          axisLabel: {
+            textStyle: {
+              color: '#e2e2e2'
+            }
+          },
+          nameTextStyle: {
+            color: '#e2e2e2'
+          }
+        },
+        yAxis: {
+          axisLabel: {
+            textStyle: {
+              color: '#e2e2e2'
+            }
+          },
+          nameTextStyle: {
+            color: '#e2e2e2'
+          }
+        }
+      }
+      this.chartSettings = {
+        labelMap: {
+          'date': '日期',
+          'saleAmt': '价格'
+        },
+        legendName: {
+          '价格': '价格'
+        },
+        xAxisType: 'time'
+      }
       return {
         info: {
           priceLog: {
@@ -15,6 +59,10 @@ const vueComponents = {
           pagination: {
             el: '.swiper-pagination'
           }
+        },
+        chartData: {
+          columns: ['date', 'saleAmt'],
+          rows: []
         },
         license: {
           blsrc: '',
@@ -50,6 +98,7 @@ const vueComponents = {
             <div class="option">购买数量：{{info.daySaleQty}}/{{info.limitQty === 0?'不限购':info.limitQty}}</div>
             <div class="option">限购数量：{{info.ulimitQty>0?info.ulimitQty:'不限购'}}</div>
             <div class="option">购买时间：{{info.tmBuyStart.substr(5, 11)}} - {{info.tmBuyEnd.substr(5, 11)}}</div>
+            <ve-line :data="chartData" height="300px" :settings="chartSettings" :extend="chartExtend"></ve-line>
             <div class="line"></div>
             <div class="nav">
              <span class="item" v-for="(item, index) in nav" :key="item" :class="{hover: navIndex === index}" @click="switchNav(index)">{{item}}</span> 
@@ -71,14 +120,6 @@ const vueComponents = {
                 <tr v-for="attr in info.attrs">
                   <td>{{attr.name}}</td>
                   <td>{{attr.attr}}</td>
-                </tr>
-                <tr v-for="attr in info.attrs">
-                  <td>趋势</td>
-                  <td>{{info.priceLog.trend === 'flat'?'持平':info.priceLog.trend === 'up'?'价格上涨':'价格下降'}}</td>
-                </tr>
-                <tr v-for="attr in info.attrs">
-                  <td>价格</td>
-                  <td>最高价:￥{{info.priceLog.max}}  最低价:￥{{info.priceLog.min}}</td>
                 </tr>
               </table>
               <img v-for="item in info.detailUrls" :src="item" :key="item" alt="">
@@ -124,6 +165,10 @@ const vueComponents = {
             activityId: this.mall.acId
           }
         })
+        // 图表数据
+        this.chartData.rows = this.info.priceLog.log
+        // 最低价
+        this.chartSettings.legendName.价格 = `价格  最高: ${this.info.priceLog.max}  最底: ${this.info.priceLog.min}`
         this.info.daySaleQty = this.mall.number.daySaleQty
       },
       async switchNav(index) {
