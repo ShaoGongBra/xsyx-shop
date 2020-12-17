@@ -39,8 +39,8 @@ const { ipcRenderer } = require('electron');
         headers: {
           source: 'applet',
           userKey: userInfo.key || '',
-          version: '1.10.30',
-          Referer: 'https://servicewechat.com/wx6025c5470c3cb50c/218/page-frame.html',
+          version: '1.10.36',
+          Referer: 'https://servicewechat.com/wx6025c5470c3cb50c/225/page-frame.html',
           'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36 MicroMessenger/7.0.9.501 NetType/WIFI MiniProgramEnv/Windows WindowsWechat'
         },
         key: requestKey
@@ -146,6 +146,16 @@ const { ipcRenderer } = require('electron');
       case 'm': return new Date(date.getFullYear(), (date.getMonth()) + num, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds())
       case 'y': return new Date((date.getFullYear() + num), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds())
     }
+  }
+  /**
+   * 获取今天日期字符串
+   * 超过11点算第二天
+   */
+  that.todayText = () => {
+    if (Number(dateToStr('HH')) >= 23) {
+      return dateToStr('yyyy-MM-dd', dateAdd('d', 1))
+    }
+    return dateToStr('yyyy-MM-dd')
   }
   let toastTimer = null
   that.toast = str => {
