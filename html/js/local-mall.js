@@ -55,6 +55,14 @@ const query = class {
         highest: false, // 历史最高价
       }
       if (data.log.length > 0) {
+        const last = data.log[data.log.length - 1]
+        const now = dateToStr('yyyy-MM-dd')
+        if (last.date !== now) {
+          data.log.push({
+            date: now,
+            saleAmt: last.saleAmt
+          })
+        }
         const prices = data.log.map(item => item.saleAmt)
         data.min = Math.min(...prices)
         data.max = Math.max(...prices)
@@ -91,7 +99,9 @@ const query = class {
           await query.db.priceLog.add(data)
           log.unshift(data)
         }
-        if (log.length === 1) {
+        const last = log[log.length - 1]
+        // 只记录当天有价格变动的商品
+        if (log.length === 1 || last.date !== dateToStr('yyyy-MM-dd')) {
           item.wave = 0
         } else {
           item.wave = Number((log[0].saleAmt - log[1].saleAmt).toFixed(2))

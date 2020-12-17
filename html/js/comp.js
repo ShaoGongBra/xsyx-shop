@@ -252,19 +252,27 @@ const vueComponents = {
       },
       async getCode() {
         this.codeStaus = 2
-        const res = await request({
-          url: 'index/getCode',
-          data: this.post
-        })
-        this.codeStaus = 1
-        this.post.msgId = res.msgId
+        try {
+          const res = await request({
+            url: 'index/getCode',
+            data: this.post
+          })
+          this.codeStaus = 1
+          this.post.msgId = res.msgId
+        } catch (error) {
+          console.log(error)
+        }
       },
       async login() {
-        const res = await request({
-          url: 'index/phoneLogin',
-          data: this.post
-        })
-        this.$emit('input', res.userKey)
+        try {
+          const res = await request({
+            url: 'index/phoneLogin',
+            data: this.post
+          })
+          this.$emit('input', res.userKey)
+        } catch (error) {
+          console.log(error)
+        }
       }
     }
   },
@@ -441,7 +449,7 @@ const vueComponents = {
           <div class="center">
             <div class="product-name number-of-lines--2">{{item.product.productName}}</div>
             <div class="product-price">平台价:￥{{item.product.saleAmt}}</div>
-            <div class="product-coupon">券后价:￥{{item.product.saleAmt - item.ticketAmt}}</div>
+            <div class="product-coupon">券后价:￥{{(item.product.saleAmt - item.ticketAmt).toFixed(2)}}</div>
           </div>
           <div class="right">
             <div class="price">￥<span>{{item.ticketAmt}}</span></div>

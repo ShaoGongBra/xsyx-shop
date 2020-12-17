@@ -566,7 +566,7 @@ input:focus {
     color: #eee;
 }
 
-.mall-detail .ve-line{
+.mall-detail .ve-line {
     margin-top: 16px;
 }
 
@@ -968,6 +968,7 @@ input:focus {
     box-shadow: 0px 0px 10px #000;
     transition: transform 0.3s ease-in-out;
     transform: translateY(-600px);
+    -webkit-app-region: no-drag;
 }
 
 .store.show {

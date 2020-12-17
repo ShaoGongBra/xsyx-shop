@@ -1,15 +1,15 @@
 {
   "name": "xsyx",
   "productName": "兴盛优选购物",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "兴盛优选PC端购物",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "devmain": "electron --inspect=5858 .",
     "service": "node service.js",
-    "build:mac": "electron-packager . --platform=darwin --arch=x64 --icon=icon.icns --app-version=1.2.1 --out=./dist",
-    "build:win": "electron-packager . --platform=win32 --arch=x64 --icon=icon.ico --app-version=1.2.1  --out=./dist"
+    "build:mac": "electron-packager . --platform=darwin --arch=x64 --icon=icon.icns --app-version=1.2.2 --out=./dist",
+    "build:win": "electron-packager . --platform=win32 --arch=x64 --icon=icon.ico --app-version=1.2.2  --out=./dist"
   },
   "repository": "https://github.com/ShaoGongBra/xsyx-shop",
   "keywords": [

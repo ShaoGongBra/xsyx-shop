@@ -573,7 +573,6 @@
             channelUse: 'WXAPP'
           }
         })
-        console.log(coupon)
         return coupon
           ? coupon.ticketList.map(item => {
             item.product = coupon.productMap[item.skuSn]
