@@ -134,15 +134,19 @@ const app = new Vue({
           }
         })
         this.userInfo.key = key
+        window.userInfo = this.userInfo
+        if (!this.userInfo.storeInfo) {
+          // 设置店铺
+          this.userInfo.storeInfo = await this.$refs.store.select(true)
+        }
         this.storeInfo = this.userInfo.storeInfo
         localStorage.setItem('userInfo', JSON.stringify(this.userInfo))
-        window.userInfo = this.userInfo
         return this.userInfo
       } catch (error) {
         this.userInfo = {}
         localStorage.removeItem("userInfo")
         toast('用户信息失效')
-        throw { message: '用户信息失效' }
+        throw error
       }
     },
     async login() {

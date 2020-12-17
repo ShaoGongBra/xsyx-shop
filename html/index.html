@@ -148,8 +148,8 @@
         </template>
       </div>
     </div>
-    <store ref="store"></store>
     <login v-if="showLogin" @input="loginInput"></login>
+    <store ref="store"></store>
     <div class="update" v-if="updateInfo.show">
       <div class="title">更新提示</div>
       <p class="name">{{updateInfo.name}}</p>

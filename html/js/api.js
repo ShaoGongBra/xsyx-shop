@@ -105,30 +105,6 @@
         }
       },
       async search(data) {
-        // const keyWord = data.keyWord
-        // const getMalls = async (list, page = 1) => {
-        //   const data = await ajax({
-        //     url: 'user/product/searchProduct',
-        //     method: 'POST',
-        //     type: 'form',
-        //     data: {
-        //       keyWord,
-        //       page,
-        //       rows: this.pageSize,
-        //       apiVersion: 'V2',
-        //       openBrandhouse: 'TRUE'
-        //     }
-        //   })
-        //   list.push(...data.records)
-        //   if (data.total > list.length && data.records.length > 0) {
-        //     await getMalls(list, data.current + 1)
-        //   }
-        // }
-        // const malls = []
-        // if (keyWord === '') {
-        //   return malls
-        // }
-        // await getMalls(malls)
         if (data.keyWord === '') {
           return []
         }
@@ -282,12 +258,14 @@
           type: 'form',
           data: { userKey: data.key }
         })
-        userInfo.storeInfo = await ajax({
-          demain: 'mall-store.xsyxsc.com',
-          url: 'mall-store/store/getStoreInfo',
-          type: 'form',
-          data: { userKey: data.key, storeId: userInfo.currentStoreId }
-        })
+        if (userInfo.currentStoreId) {
+          userInfo.storeInfo = await ajax({
+            demain: 'mall-store.xsyxsc.com',
+            url: 'mall-store/store/getStoreInfo',
+            type: 'form',
+            data: { userKey: data.key, storeId: userInfo.currentStoreId }
+          })
+        }
         return userInfo
       },
       async getCode(data) {
@@ -573,7 +551,7 @@
             channelUse: 'WXAPP'
           }
         })
-        return coupon
+        return coupon && coupon.ticketList
           ? coupon.ticketList.map(item => {
             item.product = coupon.productMap[item.skuSn]
             return item

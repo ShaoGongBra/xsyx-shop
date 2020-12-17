@@ -954,7 +954,7 @@ input:focus {
     top: 0;
     right: 0;
     bottom: 0;
-    z-index: 1;
+    z-index: 999;
     align-items: center;
 }
 
@@ -1160,6 +1160,9 @@ input:focus {
 .store .btns .btn.cancel {
     background-color: transparent;
     color: #e2e2e2;
+}
+.store .btns .btn.disable{
+    color: #999;
 }
 .store .btns .btn.hover {
     color: #e2e2e2;

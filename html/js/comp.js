@@ -485,7 +485,7 @@ const vueComponents = {
         template: `
           <div class="store-list">
             <div class="item" v-for="(item, index) in data.list" :class="{hover: data.listSelect === index}" @click="data.onSelect(index)">
-              <div v-if="item.storeId === userInfo.storeInfo.storeId" class="tip">当前门店</div>
+              <div v-if="userInfo.storeInfo && item.storeId === userInfo.storeInfo.storeId" class="tip">当前门店</div>
               <img :src="item.storePhoto" />
               <div class="right">
                 <div class="name number-of-lines">{{item.storeName}}</div>
@@ -499,6 +499,7 @@ const vueComponents = {
     data() {
       return {
         show: false,
+        disableCancel: false,
         cssShow: false,
         nav: [
           {
@@ -572,7 +573,7 @@ const vueComponents = {
               <store-list :data="nav[2]"></store-list>
             </div>
             <div class="btns">
-              <div class="btn cancel" @click="cancel">取消</div>
+              <div class="btn cancel" :class="{disable: disableCancel}" @click="cancel">取消</div>
               <div class="btn" @click="submit" :class="{hover: nav[navHover].list[nav[navHover].listSelect]}">确定选择</div>
             </div>
           </div>
@@ -583,8 +584,11 @@ const vueComponents = {
       // this.init()
     },
     methods: {
-      select() {
+      select(disableCancel) {
+        // 防止用户信息为空
+        window.userInfo = window.userInfo || {}
         this.show = true
+        this.disableCancel = disableCancel
         this.$nextTick(() => {
           this.init()
         })
@@ -622,6 +626,9 @@ const vueComponents = {
       },
       // 取消选择
       cancel() {
+        if (this.disableCancel) {
+          return
+        }
         this.map.destroy()
         this.cssShow = false
         setTimeout(() => this.show = false, 300)
@@ -634,7 +641,7 @@ const vueComponents = {
         if (!store) {
           return
         }
-        if (store.storeId === userInfo.storeInfo.storeId) {
+        if (userInfo.storeInfo && store.storeId === userInfo.storeInfo.storeId) {
           this.returnFunc[0] && this.returnFunc[0](store)
         }
         await request({
