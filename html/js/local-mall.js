@@ -56,7 +56,7 @@ const query = class {
       }
       if (data.log.length > 0) {
         const last = data.log[data.log.length - 1]
-        const now = dateToStr('yyyy-MM-dd')
+        const now = todayText()
         if (last.date !== now) {
           data.log.push({
             date: now,
@@ -99,9 +99,8 @@ const query = class {
           await query.db.priceLog.add(data)
           log.unshift(data)
         }
-        const last = log[log.length - 1]
         // 只记录当天有价格变动的商品
-        if (log.length === 1 || last.date !== dateToStr('yyyy-MM-dd')) {
+        if (log.length === 1 || log[0].date !== todayText()) {
           item.wave = 0
         } else {
           item.wave = Number((log[0].saleAmt - log[1].saleAmt).toFixed(2))

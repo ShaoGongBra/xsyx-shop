@@ -147,6 +147,16 @@ const { ipcRenderer } = require('electron');
       case 'y': return new Date((date.getFullYear() + num), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds())
     }
   }
+  /**
+   * 获取今天日期字符串
+   * 超过11点算第二天
+   */
+  that.todayText = () => {
+    if (Number(dateToStr('HH')) >= 23) {
+      return dateToStr('yyyy-MM-dd', dateAdd('d', 1))
+    }
+    return dateToStr('yyyy-MM-dd')
+  }
   let toastTimer = null
   that.toast = str => {
     const toastEle = $('.toast')
