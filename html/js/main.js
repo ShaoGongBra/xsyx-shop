@@ -72,6 +72,7 @@ const app = new Vue({
       })
       // 采集本地商品数据
       this.initStatus = 0
+      // 加载商品数据 并且把没有商品的分类过滤
       await localMall.start(this.cates)
       this.initStatus = 1
       this.selectCate = 0
@@ -278,7 +279,7 @@ const app = new Vue({
     addCart(mall, type = 'add', e) {
       const { ipcRenderer } = require('electron')
       e && (e.stopPropagation(), this.contentRoutre = 'cart')
-      if (mall.limitQty === mall.number.daySaleQty && mall.limitQty !== 0) {
+      if (mall.number && mall.limitQty === mall.number.daySaleQty && mall.limitQty !== 0) {
         toast('已售完')
         return
       }

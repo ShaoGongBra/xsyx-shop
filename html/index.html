@@ -76,7 +76,7 @@
           <div class="right">
             <span class="title">{{item.prName}}</span>
             <span class="num">{{item.tmBuyStart.substr(5, 11)}} - {{item.tmBuyEnd.substr(5, 11)}}</span>
-            <span class="num">{{item.number && item.number.daySaleQty}}/{{item.limitQty === 0 ? '不限制' : item.limitQty}}
+            <span class="num">{{item.number && item.number.daySaleQty || 0}}/{{item.limitQty === 0 ? '不限制' : item.limitQty}}
               {{item.ulimitQty > 0 ? '每人限购:' + item.ulimitQty : ''}}</span>
             <div class="bottom">
               <span class="price">￥{{item.saleAmt}}</span>
@@ -119,7 +119,7 @@
                     <span class="title">{{item.prName}}</span>
                     <span class="num">{{item.tmBuyStart.substr(5, 11)}} - {{item.tmBuyEnd.substr(5, 11)}}</span>
                     <span
-                      class="num">{{item.number && item.number.daySaleQty}}/{{item.limitQty === 0 ? '不限制' : item.limitQty}}
+                      class="num">{{item.number && item.number.daySaleQty || 0}}/{{item.limitQty === 0 ? '不限制' : item.limitQty}}
                       {{item.ulimitQty > 0 ? '每人限购:' + item.ulimitQty : ''}}</span>
                     <div class="bottom">
                       <span class="price">￥{{item.saleAmt}}</span>

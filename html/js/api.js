@@ -9,11 +9,10 @@
             openBrandHouse: 'OPEN'
           }
         })
-        const buyDate = dateToStr('HH') === '23' ? dateToStr('yyyy-MM-dd', dateAdd('d', 1)) : dateToStr('yyyy-MM-dd')
         const arr = [
           {
             windowId: -1,
-            windowName: "今日降价"
+            windowName: "今日降价",
           },
           {
             windowId: -2,
@@ -25,47 +24,51 @@
           },
           {
             windowId: 3,
-            windowName: "10点秒杀"
+            windowName: "10点秒杀",
+            area: [101]
           },
           {
             windowId: 60,
-            windowName: "0点秒杀"
+            windowName: "0点秒杀",
+            area: [101]
           },
           {
             windowId: 1054,
-            windowName: "下午整点"
+            windowName: "下午整点",
+            area: [101]
           },
           {
             windowId: 4,
-            windowName: "10点爆款"
+            windowName: "10点爆款",
+            area: [101]
           },
           {
             windowId: 488,
-            windowName: "精选0点"
+            windowName: "精选0点",
+            area: [101]
           },
           {
             windowId: 489,
-            windowName: "精选10点"
+            windowName: "精选10点",
+            area: [101]
           },
           {
             windowId: 45,
-            windowName: "每天一品"
-          },
-          // {
-          //   windowId: 490,
-          //   windowName: "每日精选"
-          // },
-          // {
-          //   windowId: 692,
-          //   windowName: "今日新品"
-          // }
+            windowName: "每天一品",
+            area: [101]
+          }
         ]
+        const { userInfo = {} } = window
+        const { storeInfo = {} } = userInfo
+        // 指定区域可用
+        const newArr = arr.filter(item => !item.area || item.area.includes(storeInfo.areaId))
         for (const key in res) {
           if (res.hasOwnProperty(key) && typeof res[key] === 'object') {
-            arr.push(...res[key])
+            newArr.push(...res[key])
           }
         }
-        return arr.map(item => {
+        // 过滤重复项目
+        return newArr.map(item => {
           if (item.brandWindowId && !item.windowId) {
             item.windowId = item.brandWindowId
           }

@@ -169,7 +169,7 @@ const vueComponents = {
         this.chartData.rows = this.info.priceLog.log
         // 最低价
         this.chartSettings.legendName.价格 = `价格  最高: ${this.info.priceLog.max}  最底: ${this.info.priceLog.min}`
-        this.info.daySaleQty = this.mall.number.daySaleQty
+        this.info.daySaleQty = this.mall.number ? this.mall.number.daySaleQty : 0
       },
       async switchNav(index) {
         this.navIndex = index
