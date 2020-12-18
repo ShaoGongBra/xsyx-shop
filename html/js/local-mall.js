@@ -181,7 +181,6 @@ const localMall = {
     let count = 0
     for (let i = 0; i < cates.length; i++) {
       if (cates[i].windowId < 0) {
-        newCate.push(cates[i])
         continue
       }
       const list = await this.getMalls(cates[i].windowId)
