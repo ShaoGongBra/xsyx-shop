@@ -1,15 +1,23 @@
-![](https://github-readme-stats.vercel.app/api?username=ShaoGongBra&theme=radical) 
 # 兴盛优选商城PC端购物
- 为了方便使用特地开发了一个用electron开发的兴盛优选的PC端,支持Windows和MacOs。
+ 为了方便使用特地用electron开发了一个的兴盛优选的PC端,支持Windows和MacOs,理论上编译后也能运行在linux上。
 # 登陆方法
 ## 一、直接使用手机号登陆使用
 使用手机号和和获取验证码的形式直接登陆后即可使用
-## 二、按照下面的步骤登陆使用
+## 二、或者按照下面的步骤登陆使用
   + 1、安装Fidder抓包工具，用于获取兴盛优选的用户key
   + 2、打开pc端小程序开始在登录成功后，用fiddler监听请求，获取请求参数中的userKey
   + 3、使用密钥登陆，将userKey填入软件的输入框中即可
-
+# 特色功能
+- 商品秒杀
+- 商品价格走势
+- 商品低价订阅（开发中）
+# 支持功能
+- 购物
+- 查看订单
+- 优惠券
+- 自提门店设置
 # 使用提示
   + 将未开始的商品加入购物车，等待倒计时结束，会自动提交订单，请前往小程序支付订单
+  + 提示已开始的商品，请手动点击提交订单进行购买
 # 效果预览
   ![预览](https://github.com/ShaoGongBra/xsyx-shop/blob/master/preview.jpg)
