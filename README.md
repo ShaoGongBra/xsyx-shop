@@ -1,3 +1,4 @@
+![]( https://visitor-badge.glitch.me/badge?page_id=1)
 # 兴盛优选商城PC端购物
  为了方便使用特地开发了一个用electron开发的兴盛优选的PC端,支持Windows和MacOs。
 # 登陆方法
