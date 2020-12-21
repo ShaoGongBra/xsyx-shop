@@ -8,6 +8,7 @@ const app = new Vue({
     initStatus: -1, // -1未开始 0进行中 1加载完成
     menus: [
       { text: '购物', value: 'cart' },
+      { text: '低价订阅', value: 'low-price' },
       { text: '订单', value: 'order' },
       { text: '优惠券', value: 'coupon', num: 0 },
       { text: '设置', value: 'setting' },
@@ -78,6 +79,7 @@ const app = new Vue({
       this.selectCate = 0
       this.getMalls()
       this.getCoupon()
+      this.getLowPrice()
     },
     nav(url) {
       const { shell } = require('electron')
@@ -182,6 +184,16 @@ const app = new Vue({
         this.showLogin = false
       }
     },
+    // 顶部菜单点击
+    async menuCkick(menu) {
+      this.contentRoutre = menu
+      if (menu === 'low-price') {
+        // 低价订阅
+        this.selectCate = -1
+        this.malls = []
+        this.malls = await this.getLowPrice()
+      }
+    },
     async search(e) {
       const keyWord = e.target.value
       this.malls.splice(0, this.malls.length)
@@ -213,9 +225,6 @@ const app = new Vue({
         }
       }
 
-    },
-    switch(index) {
-      this.selectCate = index
     },
     filterList() {
       const where = {}
@@ -251,6 +260,7 @@ const app = new Vue({
         element.coupon = this.coupon.find(item => item.skuSn == element.skuSn)
       }
     },
+    // 获取优惠券列表
     async getCoupon() {
       // 获取优惠券信息
       const coupon = await request({
@@ -260,25 +270,34 @@ const app = new Vue({
       this.menus.filter(item => item.value === 'coupon')[0].num = coupon.length
       this.getMallCoupon()
     },
+    // 设置优惠券商品列表
     setCouponMalls(e) {
       this.selectCate = -1
       this.malls = e
       this.getMallCoupon()
     },
+    // 获取低价订阅商品
+    async getLowPrice() {
+      const list = await query.mall.getDayList()
+      const lowList = list.filter(item => item.openLowPrice === 1).sort((a, b) => b.isLowPrice - a.isLowPrice)
+      this.menus.filter(item => item.value === 'low-price')[0].num = list.filter(item => item.isLowPrice === 1).length
+      return lowList
+    },
     stopPropagation(e) {
       e.stopPropagation()
     },
-    playVideo(url, e) {
-      e && e.stopPropagation()
+    playVideo(url) {
       this.videoUrl = url
     },
-    async showMallDetail(mall) {
+    // 商品详情
+    showMallDetail(mall) {
       this.selectMall = mall
       this.contentRoutre = 'goods-detail'
     },
-    addCart(mall, type = 'add', e) {
+    // 加入购物车
+    addCart(mall, type = 'add') {
       const { ipcRenderer } = require('electron')
-      e && (e.stopPropagation(), this.contentRoutre = 'cart')
+      this.contentRoutre !== 'cart' && (this.contentRoutre = 'cart')
       if (mall.number && mall.limitQty === mall.number.daySaleQty && mall.limitQty !== 0) {
         toast('已售完')
         return
@@ -344,6 +363,7 @@ const app = new Vue({
       }
       this.cartTotal()
     },
+    // 购物车价格统计
     cartTotal() {
       let num = 0
       for (let i = 0; i < this.cart.length; i++) {

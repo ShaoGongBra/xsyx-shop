@@ -1,4 +1,55 @@
 const vueComponents = {
+  goods: {
+    props: ['list'],
+    template: `
+    <div>
+      <div v-for="item in list" class="mall-item" @click="$emit('click', item)">
+        <div class="ad-image">
+          <img :src="item.adUrl" alt="">
+          <div v-if="item.videoUrl" class="play-bg" @click="playVideo(item.videoUrl, $event)">
+            <div class="play"></div>
+          </div>
+        </div>
+        <div class="right">
+          <span class="title">{{item.prName}}</span>
+          <span class="num">{{item.tmBuyStart.substr(5, 11)}} - {{item.tmBuyEnd.substr(5, 11)}}</span>
+          <span class="num">{{item.number && item.number.daySaleQty || 0}}/{{item.limitQty === 0 ? '不限制' : item.limitQty}}
+            {{item.ulimitQty > 0 ? '每人限购:' + item.ulimitQty : ''}}</span>
+          <div class="bottom">
+            <span class="price">￥{{item.saleAmt}}</span>
+            <span class="price-coupon"
+              v-if="item.coupon">券后:￥{{Number((item.saleAmt - item.coupon.ticketAmt).toFixed(2))}}</span>
+            <span class="price-old" v-else>￥{{item.marketAmt}}</span>
+            <div class="action">
+              <span v-if="item.qty" class="btn icon icon-minus-bold" @click="addCart(item, 'reduce', $event)"></span>
+              <span v-if="item.qty" class="num">{{item.qty}}</span>
+              <span class="btn icon icon-add-bold" @click="addCart(item, 'add', $event)"></span>
+            </div>
+          </div>
+        </div>
+        <div class="coupon" v-if="item.coupon">优惠券</div>
+        <div class="tips">
+          <div class="wave" v-if="item.wave != 0" :class="{add: item.wave > 0}">
+            {{item.wave>0?'+':''}}{{Number((item.wave / (item.saleAmt - item.wave) * 100).toFixed(2))}}%
+          </div>
+          <div class="low" v-if="item.openLowPrice" :class="{hover: item.isLowPrice}">
+            订:￥{{item.lowPrice}}
+          </div>
+        </div>
+      </div>
+    </div>
+    `,
+    methods: {
+      playVideo(url, e) {
+        e && e.stopPropagation()
+        this.$emit('play', url)
+      },
+      addCart(mall, type = 'add', e) {
+        e.stopPropagation()
+        this.$emit(type, mall)
+      }
+    }
+  },
   'goods-detail': {
     data() {
       this.chartExtend = {
@@ -99,6 +150,12 @@ const vueComponents = {
             <div class="option">限购数量：{{info.ulimitQty>0?info.ulimitQty:'不限购'}}</div>
             <div class="option">购买时间：{{info.tmBuyStart.substr(5, 11)}} - {{info.tmBuyEnd.substr(5, 11)}}</div>
             <ve-line :data="chartData" height="300px" :settings="chartSettings" :extend="chartExtend"></ve-line>
+            <div class="low-price">
+              <i class="icon" :class="{'icon-duoxuan-weixuan': !info.openLowPrice, 'icon-duoxuan-yixuan': info.openLowPrice}" @click="openPriceClick"></i>
+              <span>当商品价格小于等于</span>
+              <input type="number" :value="info.lowPrice" @input="lowPriceInput" />
+              <span>元时提醒我</span>
+            </div>
             <div class="line"></div>
             <div class="nav">
              <span class="item" v-for="(item, index) in nav" :key="item" :class="{hover: navIndex === index}" @click="switchNav(index)">{{item}}</span> 
@@ -171,6 +228,32 @@ const vueComponents = {
         this.chartSettings.legendName.价格 = `价格  最高: ${this.info.priceLog.max}  最低: ${this.info.priceLog.min}`
         this.info.daySaleQty = this.mall.number ? this.mall.number.daySaleQty : 0
       },
+      // 价格输入
+      lowPriceInput(e) {
+        const { info } = this
+        const data = {
+          lowPrice: Number(e.target.value),
+          isLowPrice: Number(e.target.value) >= info.saleAmt ? 1 : 0,
+          openLowPrice: info.openLowPrice && !!Number(e.target.value) ? 1 : 0
+        }
+        this.info = { ...info, ...data }
+        query.mall.editMall(info.sku, data)
+      },
+      // 订阅价格
+      openPriceClick() {
+        const { info } = this
+        if (!info.lowPrice) {
+          toast('请输入价格')
+          return
+        }
+        const data = {
+          isLowPrice: info.lowPrice >= this.info.saleAmt ? 1 : 0,
+          openLowPrice: this.info.openLowPrice ? 0 : 1
+        }
+        this.info = { ...info, ...data }
+        query.mall.editMall(info.sku, data)
+      },
+      // 导航切换
       async switchNav(index) {
         this.navIndex = index
         if (index === 1 && this.log.length === 0) {

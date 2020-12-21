@@ -217,7 +217,8 @@
           }
         })
         mall.priceLog = await query.mall.getLog(mall.sku)
-        return mall
+        const localMall = await query.mall.get(mall.sku)
+        return { ...localMall, ...mall }
       },
       async mallLog(data) {
         const { productType, productId, activityId } = data

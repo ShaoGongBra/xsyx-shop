@@ -4,8 +4,8 @@ const query = class {
   static init() {
     this.db = new Dexie('xsyx')
     // console.log(this.db)
-    this.db.version(0.3).stores({
-      mall: '++,prId,&sku,skuSn,windowId,areaId,saleAmt,prName,tmBuyStart,prType,buyDate,wave,minimum',
+    this.db.version(0.4).stores({
+      mall: '++,prId,&sku,skuSn,windowId,areaId,saleAmt,prName,tmBuyStart,prType,buyDate,wave,minimum,lowPrice,openLowPrice,isLowPrice',
       priceLog: '++,sku,date,saleAmt'
     })
     this.db.open()
@@ -79,6 +79,20 @@ const query = class {
       }
       return data
     },
+
+    /**
+     * 编辑商品信息
+     * @param {*} sku 
+     * @param {*} info 商品信息
+     */
+    async editMall(sku, info = {}) {
+      // 更新商品信息
+      const keys = await query.db.mall.where({ sku }).primaryKeys()
+      if (keys[0]) {
+        const item = await this.get(sku)
+        query.db.mall.put({ ...item, ...info }, keys[0])
+      }
+    },
     /**
      * 插入商品列表 如果存在商品则更新商品
      * @param {array} list 商品列表
@@ -113,7 +127,10 @@ const query = class {
         if (!keys[0]) {
           query.db.mall.add(item)
         } else {
-          query.db.mall.put(item, keys[0])
+          // 低价订阅
+          const mall = await this.get(item.sku)
+          mall.isLowPrice = mall.openLowPrice && mall.lowPrice >= item.saleAmt ? 1 : 0
+          query.db.mall.put({ ...mall, ...item }, keys[0])
         }
       }
     }
