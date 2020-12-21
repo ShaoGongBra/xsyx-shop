@@ -509,7 +509,8 @@ const vueComponents = {
       <div class="about">
         <div class="name">兴盛优选PC端购物</div>
         <p class="version">v{{version}}  <span class="link" @click="open">GitHub</span></p>
-        <p class="part">&nbsp;&nbsp;&nbsp;&nbsp;为了方便使用特地开发了一个用electron开发的兴盛优选的PC端，编译后可运行在Windows和MacOS以及Linux系统上。本软件完全免费开源，请前往<span class="link" @click="open">GitHub</span>获取相关代码和发布版本。</p>
+        <p class="part">&nbsp;&nbsp;&nbsp;&nbsp;为了方便使用特地用electron开发开发了一个兴盛优选的PC端，编译后可运行在Windows和MacOS以及Linux系统上。本软件完全免费开源，请前往<span class="link" @click="open">GitHub</span>获取相关代码和发布版本。</p>
+        <p class="part">&nbsp;&nbsp;&nbsp;&nbsp;有问题可以前往github提交<span class="link" @click="openIssues">issues</span>，有什么需求也可以提交issues，或者发邮件给我908634674@qq.com。</p>
       </div>
     `,
     methods: {
@@ -519,6 +520,9 @@ const vueComponents = {
       },
       open() {
         this.nav('https://github.com/ShaoGongBra/xsyx-shop')
+      },
+      openIssues() {
+        this.nav('https://github.com/ShaoGongBra/xsyx-shop/issues')
       }
     }
   },
