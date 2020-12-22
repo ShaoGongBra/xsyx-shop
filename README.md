@@ -1,5 +1,8 @@
 # 兴盛优选商城PC端购物
  为了方便使用特地用electron开发了一个的兴盛优选的PC端,支持Windows和MacOs,理论上编译后也能运行在linux上。
+# 软件下载
+- 请根据自己的系统选择对应的软件包，下载后解压出来就能直接使用
+- [下载地址](https://github.com/ShaoGongBra/xsyx-shop/releases)
 # 登陆方法
 ## 一、直接使用手机号登陆使用
 使用手机号和和获取验证码的形式直接登陆后即可使用
