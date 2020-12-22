@@ -192,11 +192,17 @@
             await getMalls(malls)
           }
         }
-        // console.log(JSON.parse(JSON.stringify(malls)))
         if (!data.disableQty) {
           await this.getQty(malls)
         }
         return malls
+      },
+      // 低价订阅商品
+      async getLowPrice() {
+        const list = await query.mall.getDayList()
+        const lowList = list.filter(item => item.openLowPrice === 1).sort((a, b) => (b.lowPrice - b.saleAmt) - (a.lowPrice - a.saleAmt))
+        await this.getQty(lowList)
+        return lowList
       },
       async mallsFromSpusn(data) {
         const list = await query.mall.getSpuSnMall(data.ids)
@@ -577,6 +583,28 @@
           method: 'POST',
           type: 'form',
           data
+        })
+      },
+      async update() {
+        return await ajax({
+          url: 'api/app/update',
+          demain: 'xsyx.platelet.xyz',
+          method: 'POST',
+          type: 'json',
+          data: {
+            userAgent: navigator.userAgent
+          }
+        })
+      },
+      async exten() {
+        return await ajax({
+          url: 'api/exten/index',
+          demain: 'xsyx.platelet.xyz',
+          method: 'POST',
+          type: 'json',
+          data: {
+            userAgent: navigator.userAgent
+          }
         })
       }
     },

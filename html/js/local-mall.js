@@ -16,8 +16,10 @@ const query = class {
       return query.db.mall.get({ sku })
     },
     dayList: [],
+    areaId: null,
     async getDayList() {
-      if (this.dayList.length > 0) {
+      const { areaId } = window.userInfo.storeInfo
+      if (this.dayList.length > 0 && this.areaId === areaId) {
         return this.dayList
       }
       await localMall.onLoad()
@@ -25,7 +27,9 @@ const query = class {
         areaId: window.userInfo.storeInfo.areaId,
         buyDate: dateToStr('HH') === '23' ? dateToStr('yyyy-MM-dd', dateAdd('d', 1)) : dateToStr('yyyy-MM-dd')
       }
-      return query.db.mall.where(where).toArray()
+      this.dayList = await query.db.mall.where(where).toArray()
+      this.areaId = areaId
+      return this.dayList
     },
     // 价格波动商品
     async getPriceList(windowId) {
@@ -140,13 +144,11 @@ const query = class {
 query.init()
 
 const localMall = {
-  status: 0, // 0 未采集 1 采集中 2已完成 3失败
+  status: 0, // 0 未采集 1 采集中
   onLoadCallbacks: [],
   onLoad() {
-    if (this.status === 2) {
+    if (this.status === 0) {
       return Promise.resolve()
-    } else if (this.status === 2) {
-      Promise.reject('加载失败')
     }
     return new Promise((resolve, reject) => {
       this.onLoadCallbacks.push([resolve, reject])
@@ -164,32 +166,31 @@ const localMall = {
    */
   async start(cates) {
     this.cates = cates
-    if (this.status > 1) {
-      this.execCallBack()
-    }
     if (this.status !== 0) {
       return
     }
+    const { areaId } = window.userInfo.storeInfo
     let last = localStorage.getItem('lastLocalMall')
     if (last) {
-      last = JSON.parse(last)
-      // 超过晚上11点就可以重新采集了 或者已经过去12小时再重新采集
-      const time = (new Date()).getTime()
-      // 今天晚上11点的时间戳
-      const date23 = strToDate(dateToStr('yyyy-MM-dd 23:00:00'))
-      // 在今天23点以后采集过数据
-      if (time > date23 && last.startTime > date23) {
-        this.status = 2
-        this.execCallBack()
-        console.log('今天23点采集过')
-        return
-      }
-      // 今天采集过数据
-      if (time <= date23 && dateToStr('yyyy-MM-dd') === dateToStr('yyyy-MM-dd', last.startTime)) {
-        this.status = 2
-        console.log('今天采集过')
-        this.execCallBack()
-        return
+      // 地区id
+      const areaLast = JSON.parse(last)[areaId]
+      if (areaLast) {
+        // 超过晚上11点就可以重新采集了 或者已经过去12小时再重新采集
+        const time = (new Date()).getTime()
+        // 今天晚上11点的时间戳
+        const date23 = strToDate(dateToStr('yyyy-MM-dd 23:00:00'))
+        // 在今天23点以后采集过数据
+        if (time > date23 && areaLast.startTime > date23) {
+          this.execCallBack()
+          console.log('今天23点采集过')
+          return
+        }
+        // 今天采集过数据
+        if (time <= date23 && dateToStr('yyyy-MM-dd') === dateToStr('yyyy-MM-dd', areaLast.startTime)) {
+          console.log('今天采集过')
+          this.execCallBack()
+          return
+        }
       }
     }
     console.log('开始采集')
@@ -203,12 +204,17 @@ const localMall = {
       const list = await this.getMalls(cates[i].windowId)
       count += list.length
     }
-    // await this.getMalls(cates[12].windowId)
-    this.status = 2
+    this.status = 0
     localStorage.setItem('lastLocalMall', JSON.stringify({
+      ...(last ? JSON.parse(last) : {}),
       startTime,
       endTime: (new Date()).getTime(),
-      count
+      count,
+      [areaId]: {
+        startTime,
+        endTime: (new Date()).getTime(),
+        count,
+      }
     }))
     this.execCallBack()
   },

@@ -57,7 +57,7 @@
     <div class="main">
       <div class="cates">
         <div v-for="(item, index) in cates" class="item" :class="{hover: selectCate === index}"
-          @click="selectCate = index,contentRoutre = 'cart',getMalls()">{{item.windowName}}</div>
+          @click="switchCate(index)">{{item.windowName}}</div>
       </div>
       <div class="malls">
         <div class="filter">
@@ -66,8 +66,8 @@
               @click="filter[index].value = option.value">{{option.name}}</div>
           </div>
         </div>
-        <goods :list="filterList()" @click="showMallDetail" @play="playVideo" @add="addCart($event, 'add')"
-          @reduce="addCart($event, 'reduce')"></goods>
+        <goods :list="filterList()" :emptyshow="!mallStatus" :emptytitle="mallEmptyInfo" @click="showMallDetail"
+          @play="playVideo" @add="addCart($event, 'add')" @reduce="addCart($event, 'reduce')"></goods>
       </div>
       <div class="content">
         <goods-detail :verify-code="$refs.verifyCode" v-if="contentRoutre === 'goods-detail'" :mall="selectMall"
@@ -75,7 +75,7 @@
         </goods-detail>
         <order v-else-if="contentRoutre === 'order'"></order>
         <coupon v-else-if="contentRoutre === 'coupon'" :list="coupon" @coupon-malls="setCouponMalls"></coupon>
-        <setting v-else-if="contentRoutre === 'setting'" :store-select="$refs.store" @reload="reload"></setting>
+        <setting v-else-if="contentRoutre === 'setting'" :store-select="$refs.store" @reload="reload()"></setting>
         <about v-else-if="contentRoutre === 'about'"></about>
         <template v-else>
           <div class="cart">
@@ -97,6 +97,7 @@
         </template>
       </div>
     </div>
+    <exten v-if="cates.length > 0"></exten>
     <login v-if="showLogin" @input="loginInput"></login>
     <store ref="store"></store>
     <div class="update" v-if="updateInfo.show">

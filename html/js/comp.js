@@ -1,8 +1,12 @@
 const vueComponents = {
   goods: {
-    props: ['list'],
+    props: ['list', 'emptyshow', 'emptytitle'],
     template: `
-    <div>
+    <div v-if="list.length === 0 && emptyshow && emptytitle" class="mall-item-empty">
+      <i class="icon icon-kong"></i>
+      {{emptytitle}}
+    </div>
+    <div v-else>
       <div v-for="item in list" class="mall-item" @click="$emit('click', item)">
         <div class="ad-image">
           <img :src="item.adUrl" alt="">
@@ -953,6 +957,47 @@ const vueComponents = {
       stopPropagation(e) {
         e.stopPropagation()
       },
+    }
+  },
+  exten: {
+    data: function () {
+      return {
+        image: '',
+        url: ''
+      }
+    },
+    template: `
+      <div v-if="image" class="exten">
+        <div class="show" @click="open">
+          <img :src="image" />
+          <i class="icon icon-close-bold" @click="close"></i>
+        </div>
+      </div>
+    `,
+    mounted() {
+      this.getImage()
+    },
+    methods: {
+      async getImage() {
+        await asyncTimeOut(3000)
+        try {
+          const data = await request({
+            url: 'index/exten'
+          })
+          this.image = data.image
+          this.url = data.url
+        } catch (error) {
+
+        }
+      },
+      close(e) {
+        e.stopPropagation()
+        this.image = ''
+      },
+      open() {
+        this.image = ''
+        this.url && require('electron').shell.openExternal(this.url)
+      }
     }
   }
 }

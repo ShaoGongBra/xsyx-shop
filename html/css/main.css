@@ -261,6 +261,19 @@ input:focus {
     width: 450px;
 }
 
+.mall-item-empty {
+    color: #e2e2e2;
+    height: 200px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 10px;
+}
+.mall-item-empty i {
+    margin-bottom: 10px;
+    font-size: 46px;
+}
+
 .mall-item {
     flex-direction: row;
     align-items: center;
@@ -1511,6 +1524,37 @@ input:focus {
     color: #e2e2e2;
     padding: 10px;
     text-align: center;
+}
+
+.exten {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+.exten .show{
+    position: relative;
+}
+.exten i{
+    position: absolute;
+    right: -10px;
+    top: -10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: #fff;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    color: #333;
+    font-size: 16px;
+    box-shadow: 0 0 3px 0 #333;
 }
 
 .init-status {

@@ -8,7 +8,7 @@ const app = new Vue({
     initStatus: -1, // -1未开始 0进行中 1加载完成
     menus: [
       { text: '购物', value: 'cart' },
-      { text: '低价订阅', value: 'low-price' },
+      { text: '低价订阅', value: 'low-price', num: 0 },
       { text: '订单', value: 'order' },
       { text: '优惠券', value: 'coupon', num: 0 },
       { text: '设置', value: 'setting' },
@@ -17,6 +17,8 @@ const app = new Vue({
     cates: [],
     selectCate: 0,
     malls: [],
+    mallStatus: false, // 商品加载状态
+    mallEmptyInfo: '没有商品', // 没有商品时的提示信息
     contentRoutre: 'cart', // 详情页面显示路由 cart 购物车(默认) goods-detail商品详情 order 订单
     selectMall: {},
     cart: [],
@@ -65,9 +67,12 @@ const app = new Vue({
     async init() {
       await this.login()
       // 获取分类和商品
-      this.reload()
+      this.reload(true)
     },
-    async reload() {
+    async reload(disableGetUserInfo) {
+      if (!disableGetUserInfo) {
+        await this.getUserInfo(window.userInfo.key)
+      }
       this.cates = await request({
         url: 'index/cates'
       })
@@ -85,30 +90,46 @@ const app = new Vue({
       const { shell } = require('electron')
       shell.openExternal(url)
     },
-    update() {
-      $.ajax({
-        url: 'https://api.github.com/repos/ShaoGongBra/xsyx-shop/releases/latest',
-        success: res => {
-          function toNum(a) {
-            a = a.toString()
-            const c = a.split('.')
-            const num_place = ["", "0", "00", "000", "0000"], r = num_place.reverse()
-            for (let i = 0; i < c.length; i++) {
-              const len = c[i].length
-              c[i] = r[len] + c[i]
-            }
-            return c.join('')
-          }
-          if (toNum(res.tag_name) > toNum(require("../package.json").version)) {
-            this.updateInfo = {
-              url: res.html_url,
-              message: res.body,
-              name: res.name,
-              show: true
-            }
+    async update() {
+      function toNum(a) {
+        a = a.toString()
+        const c = a.split('.')
+        const num_place = ["", "0", "00", "000", "0000"], r = num_place.reverse()
+        for (let i = 0; i < c.length; i++) {
+          const len = c[i].length
+          c[i] = r[len] + c[i]
+        }
+        return c.join('')
+      }
+
+      try {
+        // 自定义更新
+        const res = await request({
+          url: 'index/update'
+        })
+        if (toNum(res.version) > toNum(require("../package.json").version)) {
+          this.updateInfo = {
+            url: res.url,
+            message: res.message,
+            name: res.name,
+            show: true
           }
         }
-      })
+      } catch (error) {
+        $.ajax({
+          url: 'https://api.github.com/repos/ShaoGongBra/xsyx-shop/releases/latest',
+          success: res => {
+            if (toNum(res.tag_name) > toNum(require("../package.json").version)) {
+              this.updateInfo = {
+                url: res.html_url,
+                message: res.body,
+                name: res.name,
+                show: true
+              }
+            }
+          }
+        })
+      }
     },
     // 关闭app
     closeApp() {
@@ -190,6 +211,7 @@ const app = new Vue({
       if (menu === 'low-price') {
         // 低价订阅
         this.selectCate = -1
+        this.mallEmptyInfo = '在商品详情可以添加订阅'
         this.malls = []
         this.malls = await this.getLowPrice()
       }
@@ -198,12 +220,15 @@ const app = new Vue({
       const keyWord = e.target.value
       this.malls.splice(0, this.malls.length)
       this.selectCate = -1
+      this.mallStatus = true
+      this.mallEmptyInfo = '换个关键词试试'
       this.malls = await searchQuick({
         url: 'index/search',
         data: {
           keyWord
         }
       })
+      this.mallStatus = false
       this.getMallCoupon()
     },
     userShow(type, status, e) {
@@ -226,6 +251,11 @@ const app = new Vue({
       }
 
     },
+    switchCate(index) {
+      this.selectCate = index
+      this.contentRoutre = 'cart'
+      this.getMalls()
+    },
     filterList() {
       const where = {}
       this.filter.map(item => where[item.name] = item.value)
@@ -242,8 +272,10 @@ const app = new Vue({
       return list
     },
     async getMalls() {
+      this.mallStatus = true
       this.malls.splice(0, this.malls.length)
       const cate = this.cates[this.selectCate]
+      this.mallEmptyInfo = cate.windowId < 0 ? '请保持使用 系统将记录价格波动' : '没有商品'
       this.malls = await request({
         url: 'index/malls',
         data: {
@@ -252,6 +284,7 @@ const app = new Vue({
         }
       })
       this.getMallCoupon()
+      this.mallStatus = false
     },
     // 计算商品可用优惠券
     getMallCoupon() {
@@ -273,14 +306,16 @@ const app = new Vue({
     // 设置优惠券商品列表
     setCouponMalls(e) {
       this.selectCate = -1
+      this.mallEmptyInfo = '没有优惠券'
       this.malls = e
       this.getMallCoupon()
     },
     // 获取低价订阅商品
     async getLowPrice() {
-      const list = await query.mall.getDayList()
-      const lowList = list.filter(item => item.openLowPrice === 1).sort((a, b) => b.isLowPrice - a.isLowPrice)
-      this.menus.filter(item => item.value === 'low-price')[0].num = list.filter(item => item.isLowPrice === 1).length
+      const lowList = await request({
+        url: 'index/getLowPrice'
+      })
+      this.menus.filter(item => item.value === 'low-price')[0].num = lowList.filter(item => item.isLowPrice === 1).length
       return lowList
     },
     stopPropagation(e) {
