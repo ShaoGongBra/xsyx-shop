@@ -20,7 +20,7 @@
   "author": "xujian",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^10.1.5"
+    "electron": "^10.2.0"
   },
   "dependencies": {
     "dexie": "^3.0.3",
