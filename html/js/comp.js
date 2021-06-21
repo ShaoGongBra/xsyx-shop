@@ -39,6 +39,9 @@ const vueComponents = {
           <div class="low" v-if="item.openLowPrice" :class="{hover: item.isLowPrice}">
             订:￥{{item.lowPrice}}
           </div>
+          <div class="code" v-if="item.verificationCode">
+            验证码
+          </div>
         </div>
       </div>
     </div>
